@@ -104,16 +104,17 @@ const LoginPage = () => {
           {/* Local mode warning */}
           {!import.meta.env.VITE_SUPABASE_URL && (
             <div className="info-banner" style={{
-              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-              color: '#1e293b',
+              background: 'linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%)',
+              color: '#ffffff',
               padding: '1rem',
               borderRadius: '12px',
               marginBottom: '1.5rem',
               fontSize: '0.875rem',
               lineHeight: '1.5',
-              border: '2px solid rgba(251, 191, 36, 0.3)'
+              border: '2px solid rgba(34, 211, 238, 0.3)',
+              fontWeight: '500'
             }}>
-              <strong>⚠️ Local Mode:</strong> Using browser-only storage. Enter any email you signed up with (password not required in local mode).
+              <strong>💡 Local Demo Mode:</strong> Enter any email to continue. An account will be created automatically if needed. Your data is stored locally in this browser.
             </div>
           )}
           <h1 className="auth-title">Welcome Back</h1>

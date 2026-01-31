@@ -186,18 +186,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const hasSupabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
     
     if (!hasSupabase) {
-      // Local-only mode - check localStorage
+      // Local-only mode - very permissive for demo/testing
       console.warn('🔒 Running in local-only mode. Using browser storage for authentication.');
       
       try {
-        const localUserStr = localStorage.getItem('local_user');
-        const storedEmail = localStorage.getItem('local_user_email');
+        let localUserStr = localStorage.getItem('local_user');
+        let localUser;
         
-        if (!localUserStr || storedEmail !== email) {
-          return { error: { message: 'Invalid email or password' } as any };
+        if (!localUserStr) {
+          // Auto-create a local account if it doesn't exist
+          console.log('Creating local account on first login...');
+          localUser = {
+            id: `local-${Date.now()}`,
+            email,
+            user_metadata: {
+              full_name: email.split('@')[0], // Use email username as name
+              display_name: email.split('@')[0],
+            },
+            created_at: new Date().toISOString(),
+          };
+          
+          localStorage.setItem('local_user', JSON.stringify(localUser));
+          localStorage.setItem('local_user_email', email);
+          localStorage.setItem('local_user_name', email.split('@')[0]);
+        } else {
+          localUser = JSON.parse(localUserStr);
         }
         
-        const localUser = JSON.parse(localUserStr);
         const mockSession = {
           user: localUser,
           access_token: 'local-token',
@@ -209,7 +224,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: null };
       } catch (error: any) {
         console.error('Local signin error:', error);
-        return { error: { message: 'Failed to sign in' } as any };
+        return { error: { message: 'Failed to sign in. Please try again.' } as any };
       }
     }
     
