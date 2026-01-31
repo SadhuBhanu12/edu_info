@@ -100,6 +100,22 @@ const LoginPage = () => {
             <GraduationCap size={40} />
             <span>EDUINFO</span>
           </Link>
+          
+          {/* Local mode warning */}
+          {!import.meta.env.VITE_SUPABASE_URL && (
+            <div className="info-banner" style={{
+              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+              color: '#1e293b',
+              padding: '1rem',
+              borderRadius: '12px',
+              marginBottom: '1.5rem',
+              fontSize: '0.875rem',
+              lineHeight: '1.5',
+              border: '2px solid rgba(251, 191, 36, 0.3)'
+            }}>
+              <strong>⚠️ Local Mode:</strong> Using browser-only storage. Enter any email you signed up with (password not required in local mode).
+            </div>
+          )}
           <h1 className="auth-title">Welcome Back</h1>
           <p className="auth-subtitle">
             Continue your learning journey across multiple courses
