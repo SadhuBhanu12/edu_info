@@ -1,0 +1,207 @@
+.quick-access-toggle {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.quick-access-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 48px rgba(139, 92, 246, 0.6);
+}
+
+.quick-access-toggle.open {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: rotate(90deg);
+}
+
+.quick-access-menu {
+  position: fixed;
+  bottom: 6rem;
+  right: 2rem;
+  width: 320px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 999;
+}
+
+.quick-access-menu.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.quick-access-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.quick-access-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.25rem;
+}
+
+.quick-access-header p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.quick-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: 2px solid rgba(71, 85, 105, 0.3);
+  border-radius: 12px;
+  text-decoration: none;
+  color: #cbd5e1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--link-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.quick-link:hover {
+  border-color: var(--link-color);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.quick-link:hover::before {
+  opacity: 1;
+}
+
+.quick-link-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--link-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.quick-link:hover .quick-link-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.quick-link-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  color: #f1f5f9;
+}
+
+.quick-access-tip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.quick-access-tip kbd {
+  padding: 0.125rem 0.375rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #cbd5e1;
+}
+
+.quick-access-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 40px rgba(139, 92, 246, 0.6);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .quick-access-toggle {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+  }
+
+  .quick-access-menu {
+    bottom: 5rem;
+    right: 1.5rem;
+    left: 1.5rem;
+    width: auto;
+  }
+
+  .quick-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,235 @@
+.visual-animations-demo {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.demo-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.demo-header h1 {
+  font-size: 48px;
+  font-weight: 900;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.demo-header p {
+  font-size: 18px;
+  margin: 0;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+.demo-content {
+  display: flex;
+  gap: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Sidebar */
+.demo-sidebar {
+  width: 280px;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.demo-sidebar h3 {
+  font-size: 14px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 12px 0;
+}
+
+.category-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.category-btn {
+  padding: 10px 16px;
+  background: #f1f5f9;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.category-btn:hover {
+  background: #e2e8f0;
+  transform: translateX(4px);
+}
+
+.category-btn.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-color: #1d4ed8;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.animation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.animation-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.animation-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(4px);
+}
+
+.animation-btn.active {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.anim-icon {
+  font-size: 24px;
+}
+
+.anim-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.anim-complexity {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  font-family: 'Courier New', monospace;
+}
+
+/* Main content */
+.demo-main {
+  flex: 1;
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Footer */
+.demo-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.feature-badges {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1e293b;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Scrollbar */
+.demo-sidebar::-webkit-scrollbar,
+.demo-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.demo-sidebar::-webkit-scrollbar-track,
+.demo-main::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.demo-sidebar::-webkit-scrollbar-thumb,
+.demo-main::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.demo-sidebar::-webkit-scrollbar-thumb:hover,
+.demo-main::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .demo-content {
+    flex-direction: column;
+  }
+
+  .demo-sidebar {
+    width: 100%;
+    max-height: none;
+  }
+
+  .demo-main {
+    max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .demo-header h1 {
+    font-size: 32px;
+  }
+
+  .demo-header p {
+    font-size: 14px;
+  }
+
+  .demo-main {
+    padding: 20px;
+  }
+
+  .feature-badges {
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 12px;
+    padding: 8px 14px;
+  }
+}

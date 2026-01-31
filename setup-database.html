@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Database Setup & Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: #c62828;
+        }
+        .sql-code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🚀 Supabase Database Setup & Test</h1>
+            <p>Complete guide to set up your DSA Tracker database tables</p>
+        </div>
+
+        <!-- Step 1: SQL Schema -->
+        <div class="card">
+            <h2>Step 1: Create Database Tables</h2>
+            
+            <div class="info">
+                <strong>📋 Instructions:</strong>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Go to your <a href="https://app.supabase.com" target="_blank">Supabase Dashboard</a></li>
+                    <li>Select your project</li>
+                    <li>Click on <strong>SQL Editor</strong> in the left sidebar</li>
+                    <li>Click <strong>New Query</strong></li>
+                    <li>Copy the SQL code below</li>
+                    <li>Paste it in the SQL Editor</li>
+                    <li>Click <strong>Run</strong> to execute</li>
+                </ol>
+            </div>
+
+            <div class="sql-code">-- EDUINFO Platform - Supabase Database Schema
+-- Run this SQL in your Supabase SQL Editor
+
+-- Create user_progress table (for DSA progress tracking)
+CREATE TABLE IF NOT EXISTS public.user_progress (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  solved_problems TEXT[] DEFAULT '{}',
+  theory_time_spent JSONB DEFAULT '{}',
+  animations_watched JSONB DEFAULT '{}',
+  videos_watched JSONB DEFAULT '{}',
+  concept_readiness JSONB DEFAULT '{}',
+  topics_progress JSONB DEFAULT '{}',
+  total_solved INTEGER DEFAULT 0,
+  streak INTEGER DEFAULT 0,
+  last_active_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id)
+);
+
+-- Create problem_submissions table (for individual problem tracking)
+CREATE TABLE IF NOT EXISTS public.problem_submissions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  problem_id TEXT NOT NULL,
+  problem_title TEXT NOT NULL,
+  difficulty TEXT NOT NULL,
+  topic_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'unsolved',
+  confidence INTEGER DEFAULT 3,
+  notes TEXT,
+  time_spent INTEGER DEFAULT 0,
+  attempts INTEGER DEFAULT 0,
+  solved_at TIMESTAMP WITH TIME ZONE,
+  last_attempted TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, problem_id)
+);
+
+-- Create indexes for faster queries
+CREATE INDEX IF NOT EXISTS idx_problem_submissions_user_id ON public.problem_submissions(user_id);
+CREATE INDEX IF NOT EXISTS idx_problem_submissions_status ON public.problem_submissions(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_problem_submissions_solved_at ON public.problem_submissions(user_id, solved_at DESC);
+CREATE INDEX IF NOT EXISTS idx_problem_submissions_topic ON public.problem_submissions(user_id, topic_id);
+CREATE INDEX IF NOT EXISTS idx_user_progress_user_id ON public.user_progress(user_id);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE public.user_progress ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.problem_submissions ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for user_progress
+CREATE POLICY "Users can view their own progress"
+  ON public.user_progress
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own progress"
+  ON public.user_progress
+  FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own progress"
+  ON public.user_progress
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- Create policies for problem_submissions
+CREATE POLICY "Users can view their own submissions"
+  ON public.problem_submissions
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own submissions"
+  ON public.problem_submissions
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own submissions"
+  ON public.problem_submissions
+  FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own submissions"
+  ON public.problem_submissions
+  FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Grant permissions
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON public.user_progress TO authenticated;
+GRANT ALL ON public.problem_submissions TO authenticated;</div>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Make sure you've created your Supabase project and have the SQL Editor open before running this script.
+            </div>
+        </div>
+
+        <!-- Step 2: Test Connection -->
+        <div class="card">
+            <h2>Step 2: Test Database Connection</h2>
+            
+            <div class="button-group">
+                <button onclick="testConnection()">Test Connection</button>
+                <button onclick="checkTables()">Check Tables</button>
+                <button onclick="testInsert()">Test Insert Data</button>
+                <button onclick="testFetch()">Test Fetch Data</button>
+                <button onclick="clearTestData()">Clear Test Data</button>
+            </div>
+
+            <div id="connectionResult"></div>
+        </div>
+
+        <!-- Step 3: View Data -->
+        <div class="card">
+            <h2>Step 3: View Your Progress Data</h2>
+            
+            <div class="button-group">
+                <button onclick="viewUserProgress()">View User Progress</button>
+                <button onclick="viewSubmissions()">View Problem Submissions</button>
+            </div>
+
+            <div id="dataResult"></div>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="card">
+            <h2>📊 Database Statistics</h2>
+            <div id="statsContainer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase - Replace with your credentials
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${isError ? 'error' : 'result'}">${message}</div>`;
+        }
+
+        async function testConnection() {
+            try {
+                const { data, error } = await supabase.from('user_progress').select('count');
+                
+                if (error) throw error;
+                
+                showResult('connectionResult', `
+                    <strong>✅ Connection Successful!</strong><br>
+                    Database is accessible and responding.
+                `);
+            } catch (error) {
+                showResult('connectionResult', `
+                    <strong>❌ Connection Failed</strong><br>
+                    Error: ${error.message}<br><br>
+                    <strong>Please check:</strong><br>
+                    1. Update SUPABASE_URL and SUPABASE_ANON_KEY in this file<br>
+                    2. Make sure you've run the SQL schema<br>
+                    3. Check your Supabase project is active
+                `, true);
+            }
+        }
+
+        async function checkTables() {
+            try {
+                // Check user_progress table
+                const { data: progressData, error: progressError } = await supabase
+                    .from('user_progress')
+                    .select('count');
+
+                // Check problem_submissions table
+                const { data: submissionsData, error: submissionsError } = await supabase
+                    .from('problem_submissions')
+                    .select('count');
+
+                if (progressError || submissionsError) {
+                    throw new Error('One or more tables are missing');
+                }
+
+                showResult('connectionResult', `
+                    <strong>✅ Tables Verified!</strong><br>
+                    ✓ user_progress table exists<br>
+                    ✓ problem_submissions table exists<br>
+                    Both tables are ready to use.
+                `);
+            } catch (error) {
+                showResult('connectionResult', `
+                    <strong>❌ Tables Not Found</strong><br>
+                    Error: ${error.message}<br><br>
+                    Please run the SQL schema from Step 1 in your Supabase SQL Editor.
+                `, true);
+            }
+        }
+
+        async function testInsert() {
+            try {
+                // Get current user
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    showResult('connectionResult', `
+                        <strong>⚠️ Not Logged In</strong><br>
+                        Please sign up or log in to your app first.
+                    `, true);
+                    return;
+                }
+
+                // Insert test data into user_progress
+                const { error: progressError } = await supabase
+                    .from('user_progress')
+                    .upsert({
+                        user_id: user.id,
+                        total_solved: 5,
+                        streak: 3,
+                        last_active_date: new Date().toISOString().split('T')[0],
+                        topics_progress: {
+                            "arrays": {
+                                "topicId": "arrays",
+                                "theoryCompleted": true,
+                                "problemsProgress": {}
+                            }
+                        }
+                    }, { onConflict: 'user_id' });
+
+                if (progressError) throw progressError;
+
+                // Insert test problem submission
+                const { error: submissionError } = await supabase
+                    .from('problem_submissions')
+                    .upsert({
+                        user_id: user.id,
+                        problem_id: 'test-problem-1',
+                        problem_title: 'Test Problem',
+                        difficulty: 'easy',
+                        topic_id: 'arrays',
+                        status: 'solved',
+                        confidence: 5,
+                        solved_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,problem_id' });
+
+                if (submissionError) throw submissionError;
+
+                showResult('connectionResult', `
+                    <strong>✅ Test Data Inserted!</strong><br>
+                    Successfully inserted test progress data.<br>
+                    User ID: ${user.id}<br>
+                    Click "View User Progress" to see the data.
+                `);
+            } catch (error) {
+                showResult('connectionResult', `
+                    <strong>❌ Insert Failed</strong><br>
+                    Error: ${error.message}
+                `, true);
+            }
+        }
+
+        async function testFetch() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    showResult('connectionResult', `
+                        <strong>⚠️ Not Logged In</strong><br>
+                        Please sign up or log in to your app first.
+                    `, true);
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('user_progress')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw error;
+
+                if (!data) {
+                    showResult('connectionResult', `
+                        <strong>⚠️ No Data Found</strong><br>
+                        No progress data found for your account.<br>
+                        Click "Test Insert Data" to create some test data.
+                    `, true);
+                    return;
+                }
+
+                showResult('connectionResult', `
+                    <strong>✅ Data Fetched Successfully!</strong><br>
+                    Total Solved: ${data.total_solved}<br>
+                    Streak: ${data.streak}<br>
+                    Last Active: ${data.last_active_date}<br>
+                    <pre style="margin-top: 10px; background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
+                `);
+            } catch (error) {
+                showResult('connectionResult', `
+                    <strong>❌ Fetch Failed</strong><br>
+                    Error: ${error.message}
+                `, true);
+            }
+        }
+
+        async function clearTestData() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    showResult('connectionResult', 'Please log in first', true);
+                    return;
+                }
+
+                // Delete test submissions
+                await supabase
+                    .from('problem_submissions')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('problem_id', 'test-problem-1');
+
+                showResult('connectionResult', `
+                    <strong>✅ Test Data Cleared</strong><br>
+                    Test problem submission removed.
+                `);
+            } catch (error) {
+                showResult('connectionResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        async function viewUserProgress() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    showResult('dataResult', 'Please log in to your app first', true);
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('user_progress')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw error;
+
+                if (!data) {
+                    showResult('dataResult', 'No progress data found. Start solving problems!', true);
+                    return;
+                }
+
+                showResult('dataResult', `
+                    <h3>Your Progress</h3>
+                    <div class="grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Solved</div>
+                            <div class="stat-number">${data.total_solved || 0}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Current Streak</div>
+                            <div class="stat-number">${data.streak || 0}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Topics Started</div>
+                            <div class="stat-number">${Object.keys(data.topics_progress || {}).length}</div>
+                        </div>
+                    </div>
+                    <details style="margin-top: 20px;">
+                        <summary style="cursor: pointer; font-weight: bold;">View Raw Data</summary>
+                        <pre style="margin-top: 10px; background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
+                    </details>
+                `);
+            } catch (error) {
+                showResult('dataResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        async function viewSubmissions() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    showResult('dataResult', 'Please log in to your app first', true);
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('problem_submissions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    showResult('dataResult', 'No problem submissions found. Start solving!', true);
+                    return;
+                }
+
+                const solved = data.filter(s => s.status === 'solved').length;
+                const unsolved = data.filter(s => s.status === 'unsolved').length;
+                const revision = data.filter(s => s.status === 'revision').length;
+
+                let html = `
+                    <h3>Your Problem Submissions</h3>
+                    <div class="grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Solved</div>
+                            <div class="stat-number">${solved}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Unsolved</div>
+                            <div class="stat-number">${unsolved}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">For Revision</div>
+                            <div class="stat-number">${revision}</div>
+                        </div>
+                    </div>
+                    <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f5f5f5;">
+                                <th style="padding: 10px; text-align: left;">Problem</th>
+                                <th style="padding: 10px; text-align: left;">Difficulty</th>
+                                <th style="padding: 10px; text-align: left;">Status</th>
+                                <th style="padding: 10px; text-align: left;">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.forEach(sub => {
+                    const statusColors = {
+                        solved: '#4caf50',
+                        unsolved: '#f44336',
+                        revision: '#ff9800'
+                    };
+                    const difficultyColors = {
+                        easy: '#4caf50',
+                        medium: '#ff9800',
+                        hard: '#f44336'
+                    };
+
+                    html += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px;">${sub.problem_title}</td>
+                            <td style="padding: 10px;"><span style="color: ${difficultyColors[sub.difficulty]}">${sub.difficulty}</span></td>
+                            <td style="padding: 10px;"><span style="color: ${statusColors[sub.status]}">${sub.status}</span></td>
+                            <td style="padding: 10px;">${new Date(sub.created_at).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                showResult('dataResult', html);
+            } catch (error) {
+                showResult('dataResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        // Auto-check connection on load
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auto') === 'true') {
+                setTimeout(testConnection, 500);
+            }
+        });
+    </script>
+</body>
+</html>

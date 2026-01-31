@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Supabase Connection Test</h1>
+    
+    <div id="config">
+        <h3>Configuration:</h3>
+        <pre id="configDisplay">Loading...</pre>
+    </div>
+
+    <button onclick="testConnection()">Test Connection</button>
+    <button onclick="testAuth()">Test Auth</button>
+    <button onclick="testDatabase()">Test Database</button>
+    <button onclick="testSignup()">Test Signup Flow</button>
+
+    <div id="results"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://hcylrrfxcaqpqbmkdmzo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjeWxycmZ4Y2FxcHFibWtkbXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNTk0MjMsImV4cCI6MjA4MTczNTQyM30.9oUuZRpx9dHMfn6njpO-ox0k8ZYhRQkfVw1aXw3yX48';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Display config
+        document.getElementById('configDisplay').textContent = `
+URL: ${SUPABASE_URL}
+Key: ${SUPABASE_ANON_KEY.substring(0, 50)}...
+        `;
+
+        function addResult(title, success, message, details = null) {
+            const div = document.createElement('div');
+            div.className = `result ${success ? 'success' : 'error'}`;
+            div.innerHTML = `
+                <h3>${success ? '✓' : '✗'} ${title}</h3>
+                <p>${message}</p>
+                ${details ? `<pre>${JSON.stringify(details, null, 2)}</pre>` : ''}
+            `;
+            document.getElementById('results').appendChild(div);
+        }
+
+        window.testConnection = async function() {
+            document.getElementById('results').innerHTML = '';
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    addResult('Connection Test', true, 'Successfully connected to Supabase!', {
+                        status: response.status,
+                        statusText: response.statusText
+                    });
+                } else {
+                    addResult('Connection Test', false, 'Connection failed', {
+                        status: response.status,
+                        statusText: response.statusText
+                    });
+                }
+            } catch (error) {
+                addResult('Connection Test', false, 'Network error', error.message);
+            }
+        };
+
+        window.testAuth = async function() {
+            document.getElementById('results').innerHTML = '';
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    addResult('Auth Test', false, 'Auth error', error);
+                } else {
+                    addResult('Auth Test', true, 'Auth system working', {
+                        hasSession: !!data.session,
+                        user: data.session?.user?.email || 'Not logged in'
+                    });
+                }
+            } catch (error) {
+                addResult('Auth Test', false, 'Auth system error', error.message);
+            }
+        };
+
+        window.testDatabase = async function() {
+            document.getElementById('results').innerHTML = '';
+            
+            // Test 1: Check if tables exist
+            try {
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('count')
+                    .limit(0);
+
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        addResult('Database Schema', false, 
+                            'Tables not found! You need to run the SQL schema.', 
+                            { 
+                                error: error.message,
+                                solution: 'Go to Supabase SQL Editor and run supabase-schema.sql'
+                            }
+                        );
+                    } else {
+                        addResult('Database Schema', false, 'Database error', error);
+                    }
+                } else {
+                    addResult('Database Schema', true, 'Tables exist and are accessible!');
+                }
+            } catch (error) {
+                addResult('Database Test', false, 'Unexpected error', error.message);
+            }
+
+            // Test 2: Check RLS policies
+            try {
+                const { data, error } = await supabase
+                    .from('user_progress')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        addResult('RLS Policies', false, 'user_progress table missing');
+                    } else {
+                        addResult('RLS Policies', true, 'RLS policies configured (access denied is expected when not logged in)');
+                    }
+                } else {
+                    addResult('RLS Policies', true, 'Database access working');
+                }
+            } catch (error) {
+                addResult('RLS Test', false, 'Error checking policies', error.message);
+            }
+        };
+
+        window.testSignup = async function() {
+            document.getElementById('results').innerHTML = '';
+            
+            const testEmail = `test_${Date.now()}@example.com`;
+            const testPassword = 'TestPassword123!';
+
+            addResult('Signup Flow', true, `Testing signup with email: ${testEmail}`, null);
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: testEmail,
+                    password: testPassword,
+                    options: {
+                        data: {
+                            full_name: 'Test User',
+                            display_name: 'Test User'
+                        }
+                    }
+                });
+
+                if (error) {
+                    if (error.message.includes('trigger') || error.message.includes('function')) {
+                        addResult('Signup Test', false, 
+                            '❌ Database trigger error! The handle_new_user() function failed.', 
+                            {
+                                error: error.message,
+                                solution: 'Run supabase-schema.sql in Supabase SQL Editor to create the trigger'
+                            }
+                        );
+                    } else {
+                        addResult('Signup Test', false, 'Signup failed', error);
+                    }
+                } else {
+                    addResult('Signup Test', true, 'Signup successful!', {
+                        userId: data.user?.id,
+                        email: data.user?.email,
+                        needsEmailConfirmation: !data.user?.confirmed_at
+                    });
+
+                    // Check if profile was created
+                    if (data.user) {
+                        const { data: profile, error: profileError } = await supabase
+                            .from('user_profiles')
+                            .select('*')
+                            .eq('id', data.user.id)
+                            .single();
+
+                        if (profileError) {
+                            addResult('Profile Creation', false, 'Profile not created automatically', profileError);
+                        } else {
+                            addResult('Profile Creation', true, 'Profile created successfully!', profile);
+                        }
+                    }
+                }
+            } catch (error) {
+                addResult('Signup Test', false, 'Unexpected error', error.message);
+            }
+        };
+
+        // Auto-run connection test on load
+        testConnection();
+    </script>
+</body>
+</html>

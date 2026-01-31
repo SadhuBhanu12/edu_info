@@ -1,0 +1,242 @@
+/* ============================================
+   ANIMATION SHOWCASE PAGE STYLES
+   ============================================ */
+
+.animation-showcase {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f8fafc 0%, #e2e8f0 100%);
+  padding: 40px 20px;
+}
+
+.showcase-header {
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.showcase-title {
+  font-size: 48px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 12px 0;
+}
+
+.showcase-subtitle {
+  font-size: 20px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ============================================
+   ANIMATION SELECTOR
+   ============================================ */
+
+.animation-selector {
+  max-width: 1000px;
+  margin: 0 auto 48px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.selector-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: #fff;
+  border: 3px solid #e2e8f0;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.selector-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
+}
+
+.selector-btn.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: #3b82f6;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.selector-btn.active .btn-icon {
+  transform: scale(1.2);
+}
+
+.selector-btn.active .btn-title,
+.selector-btn.active .btn-meta {
+  color: #fff;
+}
+
+.btn-icon {
+  font-size: 36px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-content {
+  flex: 1;
+  text-align: left;
+}
+
+.btn-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.btn-meta {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+/* ============================================
+   ANIMATION DISPLAY
+   ============================================ */
+
+.animation-display {
+  max-width: 1400px;
+  margin: 0 auto 60px;
+  animation: slideUp 0.6s ease-out 0.4s both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   FEATURES GRID
+   ============================================ */
+
+.features-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  animation: fadeIn 0.8s ease-out 0.6s both;
+}
+
+.feature-card {
+  background: #fff;
+  padding: 28px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 2px solid #f1f5f9;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: #e2e8f0;
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .showcase-title {
+    font-size: 36px;
+  }
+
+  .showcase-subtitle {
+    font-size: 16px;
+  }
+
+  .animation-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .selector-btn {
+    padding: 16px 20px;
+  }
+
+  .btn-icon {
+    font-size: 32px;
+  }
+
+  .btn-title {
+    font-size: 16px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .animation-showcase {
+    padding: 24px 12px;
+  }
+
+  .showcase-title {
+    font-size: 28px;
+  }
+
+  .showcase-subtitle {
+    font-size: 14px;
+  }
+}

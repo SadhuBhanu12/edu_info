@@ -1,0 +1,305 @@
+/* CSS Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ========================================
+   ENTERPRISE PERFORMANCE OPTIMIZATIONS
+   Target: <100ms interactions, <50ms hover
+   ======================================== */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Ultra-fast interactions - Professional grade */
+button, 
+a, 
+input, 
+select, 
+textarea,
+[role="button"],
+.clickable {
+  /* TUF Standard: <50ms transitions */
+  transition: all 0.05s ease !important;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  cursor: pointer;
+}
+
+/* Instant click feedback - <50ms - TUF Standard ✅ */
+button:active, 
+a:active,
+[role="button"]:active {
+  transform: scale(0.96) translateZ(0) !important;
+  transition: all 0.03s ease !important;
+}
+
+/* Lightning hover - <50ms - TUF Standard ✅ */
+button:hover,
+a:hover,
+select:hover,
+[role="button"]:hover {
+  transition: all 0.04s ease !important;
+}
+
+/* Optimize form inputs */
+input,
+textarea,
+select {
+  transition: all 0.08s ease !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  transition: all 0.06s ease !important;
+  outline-offset: 2px;
+}
+
+/* Dropdown instant response */
+[role="menu"],
+[role="menuitem"],
+.dropdown,
+.dropdown-item,
+.menu-item {
+  transition: all 0.06s ease !important;
+}
+
+:root {
+  /* Colors - Pure Black Theme with Bright Accents & Enhanced Contrast */
+  --color-bg: #000000;
+  --color-surface: #0a0a0a;
+  --color-surface-light: #1a1a1a;
+  --color-text: #ffffff;
+  --color-text-secondary: #e5e7eb;
+  --color-text-muted: #d1d5db;
+  --color-primary: #22d3ee;
+  --color-primary-dark: #06b6d4;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-purple: #c084fc;
+  --color-pink: #f472b6;
+  --color-cyan: #22d3ee;
+  --color-indigo: #818cf8;
+  --color-blue: #60a5fa;
+  --color-teal: #2dd4bf;
+  --color-lime: #a3e635;
+  
+  /* Typography */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* Rendering */
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--color-text);
+  background: #000000;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+p {
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Inputs */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Lists */
+ul, ol {
+  list-style: none;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Code */
+code {
+  font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+pre {
+  overflow-x: auto;
+}
+
+/* Utility Classes */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Mobile-First Responsive Utilities */
+@media (max-width: 768px) {
+  body {
+    min-width: 320px;
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  h4 {
+    font-size: 1.125rem;
+  }
+
+  h5 {
+    font-size: 1rem;
+  }
+
+  h6 {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+  }
+}
+
+/* Touch Target Optimization */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    /* Ensure smooth scrolling on touch devices */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    /* Minimum touch target size for accessibility */
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Prevent text size adjustment on orientation change */
+@media screen and (orientation: landscape) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-text-muted: #ffffff;
+    --color-text-secondary: #ffffff;
+  }
+}

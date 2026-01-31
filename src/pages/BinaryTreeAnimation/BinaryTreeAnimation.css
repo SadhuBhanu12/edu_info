@@ -1,0 +1,233 @@
+/* Binary Tree Animation Styles */
+
+.binarytree-animation-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  min-height: 100vh;
+}
+
+.binarytree-animation-page .header-icon {
+  color: #6366f1;
+}
+
+.tree-icon {
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+}
+
+.tree-visualization {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 0;
+  overflow-x: auto;
+}
+
+.tree-node-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.tree-node {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ddd6fe, #c7d2fe);
+  border: 3px solid #6366f1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
+  animation: fadeInScale 0.8s ease-out;
+}
+
+.tree-node.root-node {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(145deg, #6366f1, #4f46e5);
+  border-color: #312e81;
+}
+
+.tree-node.root-node .node-value,
+.tree-node.root-node .node-type {
+  color: white;
+}
+
+.tree-node.active {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  transform: scale(1.15);
+  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.5);
+  animation: pulse 1.5s infinite;
+}
+
+.tree-node.highlighted {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5);
+  animation: bounce 1s ease-out;
+}
+
+.tree-node.highlighted .node-value,
+.tree-node.highlighted .node-type {
+  color: white;
+}
+
+.node-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #4338ca;
+}
+
+.node-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.tree-children {
+  display: flex;
+  gap: 4rem;
+  justify-content: center;
+  position: relative;
+}
+
+.tree-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.tree-branch::before {
+  content: '';
+  position: absolute;
+  top: -2rem;
+  width: 2px;
+  height: 2rem;
+  background: linear-gradient(180deg, #6366f1, #c7d2fe);
+  animation: drawLine 0.8s ease-out;
+}
+
+.left-branch::after,
+.right-branch::after {
+  content: '';
+  position: absolute;
+  top: -2rem;
+  width: calc(50% + 2rem);
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #c7d2fe);
+  animation: drawLine 0.8s ease-out;
+}
+
+.left-branch::after {
+  left: 50%;
+}
+
+.right-branch::after {
+  right: 50%;
+}
+
+.tree-badge {
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+}
+
+.tree-active-icon {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.tree-found-icon {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+.tree-root-icon {
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+}
+
+.tree-primary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+}
+
+.tree-primary:hover {
+  background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+}
+
+.tree-progress {
+  background: linear-gradient(90deg, #6366f1, #4f46e5) !important;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes drawLine {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .tree-node {
+    width: 60px;
+    height: 60px;
+  }
+
+  .tree-node.root-node {
+    width: 80px;
+    height: 80px;
+  }
+
+  .node-value {
+    font-size: 1.4rem;
+  }
+
+  .tree-children {
+    gap: 2rem;
+  }
+
+  .tree-visualization {
+    padding: 2rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .tree-node {
+    width: 50px;
+    height: 50px;
+  }
+
+  .tree-node.root-node {
+    width: 70px;
+    height: 70px;
+  }
+
+  .node-value {
+    font-size: 1.2rem;
+  }
+
+  .node-type {
+    font-size: 0.6rem;
+  }
+
+  .tree-children {
+    gap: 1.5rem;
+  }
+}

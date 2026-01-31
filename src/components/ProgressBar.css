@@ -1,0 +1,29 @@
+.progress-bar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6, #22d3ee);
+  background-size: 200% 100%;
+  animation: gradientFlow 3s ease infinite;
+  transition: width 0.1s ease-out;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.8),
+              0 0 40px rgba(59, 130, 246, 0.5);
+}
+
+@keyframes gradientFlow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}

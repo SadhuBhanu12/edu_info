@@ -1,0 +1,198 @@
+/* TUF-Style Progress Circle Component */
+.tuf-progress-circle {
+  width: 100%;
+  max-width: 520px;
+}
+
+.progress-card {
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.progress-label {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  color: #c084fc;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.progress-visual {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+/* Circular Progress */
+.circle-container {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+}
+
+.progress-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+}
+
+.circle-progress {
+  fill: none;
+  stroke: url(#multiGradient);
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+/* Define gradient in component */
+.progress-svg .circle-progress {
+  stroke: #22c55e;
+}
+
+/* Simulate multi-color effect with conditional classes */
+.circle-progress[data-percentage="low"] {
+  stroke: #ef4444;
+}
+
+.circle-progress[data-percentage="medium"] {
+  stroke: #f59e0b;
+}
+
+.circle-progress[data-percentage="high"] {
+  stroke: #22c55e;
+}
+
+.circle-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.percentage {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffffff 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
+}
+
+.total-problems {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #a3a3a3;
+}
+
+/* Difficulty Stats */
+.difficulty-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.diff-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.diff-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.diff-indicator.easy {
+  background: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+}
+
+.diff-indicator.medium {
+  background: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+.diff-indicator.hard {
+  background: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+.diff-label {
+  font-size: 0.9375rem;
+  color: #d1d5db;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.diff-count {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-left: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .progress-card {
+    padding: 1.5rem;
+  }
+  
+  .progress-visual {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .circle-container {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .percentage {
+    font-size: 3rem;
+  }
+  
+  .total-problems {
+    font-size: 1rem;
+  }
+  
+  .difficulty-stats {
+    width: 100%;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .circle-container {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .percentage {
+    font-size: 2.5rem;
+  }
+}

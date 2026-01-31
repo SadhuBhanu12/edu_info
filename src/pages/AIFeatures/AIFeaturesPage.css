@@ -1,0 +1,334 @@
+.ai-features-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  color: #94a3b8;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.beta-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  color: #a78bfa;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.feature-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 2px solid rgba(71, 85, 105, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--feature-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover,
+.feature-card.active {
+  border-color: var(--feature-color);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px -10px var(--feature-color);
+}
+
+.feature-card:hover::before,
+.feature-card.active::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--feature-color), var(--feature-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  color: white;
+  opacity: 0.9;
+}
+
+.feature-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 0.75rem;
+}
+
+.feature-description {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.feature-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 12px;
+  color: #fbbf24;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.roadmap-section {
+  background: rgba(30, 41, 59, 0.5);
+  border: 2px solid rgba(71, 85, 105, 0.3);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.roadmap-section h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.roadmap-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #10b981, #3b82f6, #8b5cf6, #6366f1);
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 2rem;
+  padding-bottom: 2rem;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -0.5rem;
+  top: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #475569;
+  border: 3px solid #0f172a;
+}
+
+.timeline-item.completed .timeline-marker {
+  background: #10b981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.timeline-item.in-progress .timeline-marker {
+  background: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.timeline-item.upcoming .timeline-marker {
+  background: #8b5cf6;
+}
+
+.timeline-content h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-content p {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.timeline-eta {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  color: #a78bfa;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.info-box {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+}
+
+.info-box h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 1.5rem;
+}
+
+.info-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.info-box li {
+  color: #cbd5e1;
+  font-size: 1rem;
+  line-height: 1.8;
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.info-box li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.info-box strong {
+  color: #f1f5f9;
+}
+
+.cta-section {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 16px;
+  padding: 3rem;
+}
+
+.cta-section h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 1rem;
+}
+
+.cta-section p {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.cta-button {
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px -10px rgba(59, 130, 246, 0.6);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 768px) {
+  .ai-features-page {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .roadmap-section {
+    padding: 1.5rem;
+  }
+
+  .cta-section {
+    padding: 2rem 1rem;
+  }
+}

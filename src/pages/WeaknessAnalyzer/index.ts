@@ -1,0 +1,1 @@
+export { WeaknessAnalyzer } from './WeaknessAnalyzer';

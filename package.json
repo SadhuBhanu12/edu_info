@@ -1,0 +1,50 @@
+{
+  "name": "dsa_tracter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:analyze": "ANALYZE=true npm run build",
+    "build:production": "NODE_ENV=production npm run build",
+    "build:stats": "npm run build -- --mode production",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "preview:production": "npm run build && vite preview",
+    "check:lighthouse": "npm run build && npm run preview",
+    "perf:analyze": "npm run build:analyze && npm run preview",
+    "clean": "rm -rf dist node_modules/.vite",
+    "optimize": "npm run clean && npm run build:production"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.3",
+    "framer-motion": "^11.15.0",
+    "lucide-react": "^0.562.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.11.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@lhci/cli": "^0.15.1",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "compression": "^1.8.1",
+    "esbuild": "^0.25.12",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "npm:rolldown-vite@7.2.5",
+    "vite-plugin-compression": "^0.5.1"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@7.2.5"
+  }
+}

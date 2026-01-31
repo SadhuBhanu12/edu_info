@@ -1,0 +1,220 @@
+.practice-page {
+  min-height: 100vh;
+  background: #0f172a;
+  padding: 1rem;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  color: #3b82f6;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1.5rem;
+}
+
+.back-button:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateX(-4px);
+}
+
+.back-button:active {
+  transform: translateX(-2px);
+}
+
+.practice-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.problem-panel,
+.editor-panel {
+  background: rgba(30, 41, 59, 0.5);
+  border: 2px solid rgba(71, 85, 105, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.problem-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.problem-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.difficulty-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.difficulty-badge.easy {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.difficulty-badge.medium {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+}
+
+.difficulty-badge.hard {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.problem-description,
+.problem-examples,
+.problem-constraints,
+.problem-hints {
+  margin-bottom: 2rem;
+}
+
+.problem-description h3,
+.problem-examples h3,
+.problem-constraints h3,
+.problem-hints h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 1rem;
+}
+
+.problem-description p {
+  color: #cbd5e1;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.example {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.example strong {
+  color: #f1f5f9;
+}
+
+.example pre {
+  margin-top: 0.5rem;
+  color: #94a3b8;
+  font-family: 'Fira Code', monospace;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.problem-constraints ul {
+  list-style: none;
+  padding: 0;
+}
+
+.problem-constraints li {
+  color: #cbd5e1;
+  padding: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.6;
+}
+
+.problem-constraints li::before {
+  content: '•';
+  position: absolute;
+  left: 0.5rem;
+  color: #3b82f6;
+  font-weight: bold;
+}
+
+.hints-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 8px;
+  color: #fbbf24;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.hints-toggle:hover {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.hint {
+  background: rgba(251, 191, 36, 0.05);
+  border-left: 3px solid #fbbf24;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 4px;
+}
+
+.hint strong {
+  color: #fbbf24;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .practice-container {
+    grid-template-columns: 1fr;
+  }
+
+  .problem-panel,
+  .editor-panel {
+    height: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .practice-page {
+    padding: 0.5rem;
+  }
+
+  .back-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .problem-panel,
+  .editor-panel {
+    padding: 1rem;
+  }
+
+  .problem-title {
+    font-size: 1.5rem;
+  }
+}

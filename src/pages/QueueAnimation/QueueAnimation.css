@@ -1,0 +1,228 @@
+/* Queue Animation Styles */
+
+.queue-animation-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  min-height: 100vh;
+}
+
+.queue-animation-page .header-icon {
+  color: #f59e0b;
+}
+
+.queue-icon {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.queue-visualization {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem 0;
+}
+
+.queue-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+}
+
+.queue-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.front-label {
+  color: #ef4444;
+}
+
+.rear-label {
+  color: #10b981;
+}
+
+.queue-container {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border-radius: 20px;
+  border-left: 4px solid #ef4444;
+  border-right: 4px solid #10b981;
+}
+
+.queue-person {
+  width: 140px;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, #fffbeb, #fef3c7);
+  border: 3px solid #f59e0b;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.2);
+}
+
+.queue-person.active {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.4);
+  z-index: 10;
+}
+
+.queue-person.active .person-value,
+.queue-person.active .person-label {
+  color: white;
+}
+
+.queue-person.new-person {
+  background: linear-gradient(135deg, #10b981, #059669);
+  animation: slideInRight 0.8s ease-out;
+}
+
+.queue-person.new-person .person-value,
+.queue-person.new-person .person-label {
+  color: white;
+}
+
+.queue-person.removing-person {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  animation: slideOutLeft 0.8s ease-out forwards;
+}
+
+.queue-person.removing-person .person-value,
+.queue-person.removing-person .person-label {
+  color: white;
+}
+
+.enter-arrow {
+  position: absolute;
+  right: -40px;
+  animation: slideAnimation 1s infinite;
+}
+
+.exit-arrow {
+  position: absolute;
+  left: -40px;
+  animation: slideAnimation 1s infinite;
+}
+
+.arrow-icon {
+  color: #f59e0b;
+}
+
+.person-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #92400e;
+}
+
+.person-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #b45309;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.queue-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.queue-active-icon {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.queue-new-icon {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+.queue-remove-icon {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+.queue-primary {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.queue-primary:hover {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+}
+
+.queue-progress {
+  background: linear-gradient(90deg, #f59e0b, #d97706) !important;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  to {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+}
+
+@keyframes slideAnimation {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-10px);
+  }
+}
+
+@media (max-width: 768px) {
+  .queue-person {
+    width: 120px;
+    padding: 1.25rem;
+  }
+
+  .person-value {
+    font-size: 2rem;
+  }
+
+  .queue-labels {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .queue-person {
+    width: 100px;
+    padding: 1rem;
+  }
+
+  .person-value {
+    font-size: 1.8rem;
+  }
+
+  .queue-container {
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel to DSA Tracker Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #e2e8f0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #22d3ee;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .instructions {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .instructions h2 {
+            color: #34d399;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .format-example {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .input-section {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #22d3ee;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #22d3ee;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background: #06b6d4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(100, 116, 139, 0.3);
+            color: #e2e8f0;
+            border: 1px solid rgba(100, 116, 139, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(100, 116, 139, 0.5);
+        }
+
+        .btn-success {
+            background: #34d399;
+            color: #000000;
+        }
+
+        .btn-success:hover {
+            background: #10b981;
+        }
+
+        .output-section {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat {
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        pre {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        code {
+            color: #4ade80;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .warning {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #fbbf24;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #4ade80;
+        }
+
+        .topic-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .topic-option {
+            background: rgba(30, 30, 30, 0.8);
+            border: 2px solid rgba(100, 116, 139, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .topic-option:hover {
+            border-color: #22d3ee;
+            background: rgba(34, 211, 238, 0.1);
+        }
+
+        .topic-option.selected {
+            border-color: #22d3ee;
+            background: rgba(34, 211, 238, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Excel to DSA Tracker Converter</h1>
+        <p class="subtitle">Convert your Striver Sheet Excel data into TypeScript code format</p>
+
+        <div class="instructions">
+            <h2>📋 Instructions</h2>
+            <ol>
+                <li><strong>Export Excel to TSV/CSV:</strong> Open your Excel file, select all data, copy (Ctrl+C)</li>
+                <li><strong>Paste below:</strong> The data should have columns: <code>Title | Topic | Difficulty | LeetCode Link | GFG Link | Companies | Patterns</code></li>
+                <li><strong>Click Convert:</strong> The tool will generate TypeScript code</li>
+                <li><strong>Copy & Paste:</strong> Add the generated code to <code>src/data/topics.ts</code></li>
+            </ol>
+
+            <div class="format-example">
+                <strong>Expected Format (Tab-separated):</strong><br>
+                Two Sum    arrays    Easy    https://leetcode.com/problems/two-sum/    https://geeksforgeeks.org/...    Google,Amazon    Hash Map,Array<br>
+                Reverse Linked List    linked-lists    Medium    https://leetcode.com/...    https://geeksforgeeks.org/...    Facebook,Microsoft    Two Pointers
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label>📥 Paste Excel Data (Tab-separated or CSV)</label>
+                <textarea id="excelInput" placeholder="Paste your Excel data here (Ctrl+V)...
+
+Example:
+Two Sum	arrays	Easy	https://leetcode.com/problems/two-sum/	https://geeksforgeeks.org/...	Google,Amazon	Hash Map
+Best Time to Buy and Sell Stock	arrays	Easy	https://leetcode.com/problems/best-time-to-buy-and-sell-stock/		Amazon,Facebook	Sliding Window"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>🔢 Starting ID Number (optional)</label>
+                <input type="number" id="startId" value="1" style="width: 150px; padding: 0.5rem; background: rgba(15, 15, 15, 0.8); border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 6px; color: #e2e8f0;">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="convertData()">🚀 Convert to TypeScript</button>
+            <button class="btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+        </div>
+
+        <div class="output-section" id="outputSection" style="display: none;">
+            <div class="output-header">
+                <h2>✨ Generated Code</h2>
+                <div class="stats">
+                    <div class="stat" id="problemCount">0 problems</div>
+                    <div class="stat" id="topicCount">0 topics</div>
+                </div>
+            </div>
+            <button class="btn-success" onclick="copyCode()" style="margin-bottom: 1rem;">📋 Copy Code</button>
+            <pre><code id="output"></code></pre>
+        </div>
+    </div>
+
+    <script>
+        const topicMapping = {
+            'arrays': 'arrays',
+            'array': 'arrays',
+            'strings': 'strings',
+            'string': 'strings',
+            'linked-lists': 'linked-lists',
+            'linkedlists': 'linked-lists',
+            'linked list': 'linked-lists',
+            'stacks': 'stacks-queues',
+            'queues': 'stacks-queues',
+            'stack': 'stacks-queues',
+            'queue': 'stacks-queues',
+            'trees': 'trees',
+            'tree': 'trees',
+            'bst': 'trees',
+            'binary tree': 'trees',
+            'graphs': 'graphs',
+            'graph': 'graphs',
+            'dp': 'dynamic-programming',
+            'dynamic programming': 'dynamic-programming',
+            'sorting': 'sorting-searching',
+            'searching': 'sorting-searching',
+            'binary search': 'sorting-searching'
+        };
+
+        function convertData() {
+            const input = document.getElementById('excelInput').value.trim();
+            const startId = parseInt(document.getElementById('startId').value) || 1;
+
+            if (!input) {
+                alert('Please paste your Excel data first!');
+                return;
+            }
+
+            try {
+                const lines = input.split('\n').filter(line => line.trim());
+                const problems = [];
+                let currentId = startId;
+
+                lines.forEach(line => {
+                    // Try to split by tab first, then by comma
+                    let parts = line.split('\t').map(p => p.trim());
+                    if (parts.length < 3) {
+                        parts = line.split(',').map(p => p.trim());
+                    }
+
+                    if (parts.length < 3) return; // Skip invalid lines
+
+                    const title = parts[0] || '';
+                    const topicRaw = (parts[1] || 'arrays').toLowerCase();
+                    const topic = topicMapping[topicRaw] || topicRaw;
+                    const difficulty = parts[2] || 'Medium';
+                    const leetcodeUrl = parts[3] || '';
+                    const gfgUrl = parts[4] || '';
+                    const companies = parts[5] ? parts[5].split(',').map(c => c.trim()).filter(c => c) : [];
+                    const patterns = parts[6] ? parts[6].split(',').map(p => p.trim()).filter(p => p) : ['Array'];
+
+                    // Determine platform based on URL
+                    let platform = 'LeetCode';
+                    let url = leetcodeUrl;
+                    if (!leetcodeUrl && gfgUrl) {
+                        platform = 'GeeksForGeeks';
+                        url = gfgUrl;
+                    } else if (leetcodeUrl) {
+                        platform = 'LeetCode';
+                        url = leetcodeUrl;
+                    }
+
+                    const topicPrefix = topic.substring(0, 3);
+                    const id = `${topicPrefix}-${currentId}`;
+
+                    problems.push({
+                        id,
+                        title,
+                        difficulty,
+                        platform,
+                        url,
+                        topicId: topic,
+                        patterns,
+                        companies: companies.length > 0 ? companies : undefined
+                    });
+
+                    currentId++;
+                });
+
+                // Generate TypeScript code
+                let code = '// Add these problems to the problems array in src/data/topics.ts\n\n';
+                
+                problems.forEach(problem => {
+                    code += `  { `;
+                    code += `id: '${problem.id}', `;
+                    code += `title: '${problem.title}', `;
+                    code += `difficulty: '${problem.difficulty}', `;
+                    code += `platform: '${problem.platform}', `;
+                    code += `url: '${problem.url}', `;
+                    code += `topicId: '${problem.topicId}', `;
+                    code += `patterns: [${problem.patterns.map(p => `'${p}'`).join(', ')}]`;
+                    if (problem.companies) {
+                        code += `, companies: [${problem.companies.map(c => `'${c}'`).join(', ')}]`;
+                    }
+                    code += ` },\n`;
+                });
+
+                // Update statistics
+                const topics = [...new Set(problems.map(p => p.topicId))];
+                document.getElementById('problemCount').textContent = `${problems.length} problems`;
+                document.getElementById('topicCount').textContent = `${topics.length} topics`;
+
+                // Display output
+                document.getElementById('output').textContent = code;
+                document.getElementById('outputSection').style.display = 'block';
+
+                // Scroll to output
+                document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                alert('Error parsing data: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function copyCode() {
+            const code = document.getElementById('output').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#34d399';
+                }, 2000);
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('excelInput').value = '';
+            document.getElementById('outputSection').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

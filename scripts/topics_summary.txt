@@ -1,0 +1,208 @@
+# DSA Topics - Comprehensive Learning Guide
+
+Based on 'Data Structures and Algorithms in Java, 6th Edition'
+
+================================================================================
+
+## ARRAYS
+**Priority:** Tier 1 | **Interview Weight:** Very High
+**Pages:** 103-121 (19 pages extracted)
+
+**Why It Matters:** Foundation of all data structures. Used in 40% of interview problems.
+
+**Key Concepts to Master:**
+  • Two Pointers
+  • Sliding Window
+  • Prefix Sum
+  • Kadane Algorithm
+
+**From the Textbook:**
+2.4. Exceptions 85 2.4.2 Throwing Exceptions Exceptions originate when a piece of Java code ﬁnds some sort of problem during execution and throws an exception object. This is done by using the throw keyword followed by an instance of the exception type to be thrown. It is often convenient to instantiate an exception object at the time the exception has to be thrown. Thus, athrow statement is typically written as follows: throw new exceptionType (parameters ); where exceptionType is the type of the exception and the parameters are sent to that type’s constructor; most exception types offer a ve...
+
+--------------------------------------------------------------------------------
+
+## LINKED LISTS
+**Priority:** Tier 1 | **Interview Weight:** High
+**Pages:** 122-145 (24 pages extracted)
+
+**Why It Matters:** Tests pointer manipulation and memory management skills.
+
+**Key Concepts to Master:**
+  • Fast & Slow Pointers
+  • Reversal
+  • Cycle Detection
+  • Merging
+
+**From the Textbook:**
+104 Chapter 3. Fundamental Data Structures 3.1 Using Arrays In this section, we explore a few applications of arrays—the concrete data structures introduced in Section 1.3 that access their entries using integer indices. 3.1.1 Storing Game Entries in an Array The ﬁrst application we study is storing a sequence of high score entries for a video game in an array. This is representative of many applications in which a sequence of objects must be stored. We could just as easily have chosen to store records for patients in a hospital or the names of players on a football team. Nevertheless, let us ...
+
+--------------------------------------------------------------------------------
+
+## STACKS
+**Priority:** Tier 1 | **Interview Weight:** High
+**Pages:** 225-238 (14 pages extracted)
+
+**Why It Matters:** Essential for parsing, DFS, and undo operations.
+
+**Key Concepts to Master:**
+  • Monotonic Stack
+  • Expression Evaluation
+  • Backtracking
+
+**From the Textbook:**
+5.3. Further Examples of Recursion 207 A recursive algorithm for computing the sum of an array of integers based on this intuition is implemented in Code Fragment 5.6. 1/∗∗Returns the sum of the ﬁrst n integers of the given array. ∗/ 2public static int linearSum( int[ ] data,intn){ 3if(n == 0) 4return0; 5else 6returnlinearSum(data, n−1) + data[n−1]; 7} Code Fragment 5.6: Summing an array of integers using linear recursion. A recursion trace of the linearSum method for a small example is given in Figure 5.10. For an input of size n, thelinearSum algorithm makes n+1 method calls. Hence, it will ...
+
+--------------------------------------------------------------------------------
+
+## QUEUES
+**Priority:** Tier 1 | **Interview Weight:** Medium-High
+**Pages:** 238-252 (15 pages extracted)
+
+**Why It Matters:** Critical for BFS, scheduling, and stream processing.
+
+**Key Concepts to Master:**
+  • BFS
+  • Sliding Window
+  • Priority Queue Applications
+
+**From the Textbook:**
+220 Chapter 5. Recursion 1/∗∗Returns true if the target value is found in the data array. ∗/ 2public static boolean binarySearchIterative( int[ ] data,inttarget){ 3intlow = 0; 4inthigh = data.length −1; 5while(low<= high){ 6intmid = (low + high) / 2; 7if(target == data[mid]) // found a match 8 return true ; 9else if(target<data[mid]) 10 high = mid−1; // only consider values left of mid 11else 12 low = mid + 1; // only consider values right of mid 13} 14return false ; // loop ended without success 15} Code Fragment 5.15: A nonrecursive implementation of binary search. As a tangible example, our...
+
+--------------------------------------------------------------------------------
+
+## RECURSION
+**Priority:** Tier 1 | **Interview Weight:** Very High
+**Pages:** 189-224 (36 pages extracted)
+
+**Why It Matters:** Fundamental problem-solving technique. Required for trees, graphs, DP.
+
+**Key Concepts to Master:**
+  • Base Case
+  • Recursive Case
+  • Backtracking
+  • Tree Recursion
+
+**From the Textbook:**
+4.3. Asymptotic Analysis 171 1/∗∗Returns the maximum value of a nonempty array of numbers. ∗/ 2public static double arrayMax( double[ ] data){ 3intn = data.length; 4doublecurrentMax = data[0]; // assume ﬁrst entry is biggest (for now) 5for(intj=1; j<n; j++) // consider all other entries 6if(data[j]>currentMax) // if data[j] is biggest thus far... 7 currentMax = data[j]; // record it as the current max 8returncurrentMax; 9} Code Fragment 4.3: A method that returns the maximum value of an array. Using the big-Oh notation, we can write the following mathematically precise statement on the running...
+
+--------------------------------------------------------------------------------
+
+## TREES
+**Priority:** Tier 1 | **Interview Weight:** Very High
+**Pages:** 307-358 (52 pages extracted)
+
+**Why It Matters:** Hierarchical data representation. 20% of interview problems.
+
+**Key Concepts to Master:**
+  • DFS Traversals
+  • BFS
+  • Binary Search Trees
+  • Tree Construction
+
+**From the Textbook:**
+7.5. The Java Collections Framework 289 7.5.1 List Iterators in Java Thejava.util.LinkedList class does not expose a position concept to users in its API, as we do in our positional list ADT. Instead, the preferred way to access and update aLinkedList object in Java, without using indices, is to use a ListIterator that is returned by the list’s listIterator() method. Such an iterator provides forward and backward traversal methods as well as local update methods. It views its current position as being before the ﬁrst element, between two elements, or after the last element. That is, it uses a ...
+
+--------------------------------------------------------------------------------
+
+## SORTING
+**Priority:** Tier 2 | **Interview Weight:** High
+**Pages:** 531-572 (42 pages extracted)
+
+**Why It Matters:** Fundamental algorithms. Understanding sorting unlocks many optimizations.
+
+**Key Concepts to Master:**
+  • Merge Sort
+  • Quick Sort
+  • Heap Sort
+  • Counting Sort
+
+**From the Textbook:**
+11.6. Red-Black Trees 513 Case 1: The Sibling s of y is Black. (See Figure 11.32.) In this case, the double red denotes the fact that we have added the new node to a corresponding 3-node of the (2,4)treeT′, effectively creating a malformed 4-node. This formation has one red node, y, that is the parent of another red node, x; we want the two red nodes to be siblings instead. To ﬁx this problem, weperform a trinode restructuring ofT. The trinode restructuring (introduced in Section 11.2) is done by the operation restructure( x), which consists of the following steps (see again Figure 11.32): •Ta...
+
+--------------------------------------------------------------------------------
+
+## HASHING
+**Priority:** Tier 2 | **Interview Weight:** Very High
+**Pages:** 410-445 (36 pages extracted)
+
+**Why It Matters:** O(1) lookups enable efficient solutions. Used in 30% of problems.
+
+**Key Concepts to Master:**
+  • Hash Maps
+  • Hash Sets
+  • Collision Resolution
+  • Hash Functions
+
+**From the Textbook:**
+392 Chapter 9. Priority Queues 9.5.2 Implementing an Adaptable Priority Queue Code Fragments 9.12 and 9.13 present a Java implementation of an adaptable pri- ority queue, as a subclass of the HeapPriorityQueue class from Section 9.3.2. We begin by deﬁning a nested AdaptablePQEntry class (lines 5–15) that extends the inherited PQEntry class, augmenting it with an additional index ﬁeld. The inher- itedinsert method is overridden, so that we create and initialize an instance of the AdaptablePQEntry class (not the original PQEntry class). An important aspect of our design is that the original Heap...
+
+--------------------------------------------------------------------------------
+
+## HEAPS
+**Priority:** Tier 2 | **Interview Weight:** High
+**Pages:** 359-400 (42 pages extracted)
+
+**Why It Matters:** Efficient priority operations. Essential for many algorithms.
+
+**Key Concepts to Master:**
+  • Min/Max Heap
+  • Priority Queue
+  • Heap Sort
+  • Top K Elements
+
+**From the Textbook:**
+8.4. Tree Traversal Algorithms 341 Postorder Traversal We implement a postorder traversal using a similar design as we used for a pre- order traversal. The only difference is that a “visited” position is not added to a postorder snapshot until after all of its subtrees have been traversed. Both the re- cursive utility and the top-level public method are given in Code Fragment 8.20. 1/∗∗Adds positions of the subtree rooted at Position p to the given snapshot. ∗/ 2private void postorderSubtree(Position <E>p, List<Position<E>>snapshot){ 3for(Position<E>c : children(p)) 4 postorderSubtree(c, snaps...
+
+--------------------------------------------------------------------------------
+
+## GRAPHS
+**Priority:** Tier 2 | **Interview Weight:** High
+**Pages:** 611-686 (76 pages extracted)
+
+**Why It Matters:** Models complex relationships. Common in system design interviews.
+
+**Key Concepts to Master:**
+  • DFS
+  • BFS
+  • Dijkstra
+  • Union-Find
+  • Topological Sort
+
+**From the Textbook:**
+13.3. Tries 593 e zeze mizei nimize ze nimizemi nimize (a) 0..1 6..7 6..7 2..7 2..72..7 1..1 6..77..7 4..7 e0 1 2 3 4 5 6 7 m i n i m i z (b) Figure 13.11: (a) Sufﬁx trie Tfor the string X="minimize" . (b) Compact repre- sentation of T, where pair j..kdenotes the substring X[j..k]in the reference string. Using a Suﬃx Trie The sufﬁx trie Tfor a string Xcan be used to efﬁciently perform pattern-matching queries on text X. Namely, we can determine whether a pattern is a substring of X by trying to trace a path associated with PinT.Pis a substring of Xif and only if such a path can be traced. The ...
+
+--------------------------------------------------------------------------------
+
+## DYNAMIC PROGRAMMING
+**Priority:** Tier 2 | **Interview Weight:** Very High
+**Pages:** 598-606 (9 pages extracted)
+
+**Why It Matters:** Optimization technique. 15-20% of hard interview problems.
+
+**Key Concepts to Master:**
+  • Memoization
+  • Tabulation
+  • State Transition
+  • Optimization
+
+**From the Textbook:**
+580 Chapter 13. Text Processing for another occurrence. The efﬁciency of the Boyer-Moore algorithm relies on quickly determining where a mismatched character occurs elsewhere in the pat- tern. In particular, we deﬁne a function last(c)as •Ifcis in the pattern, last(c)is the index of the last (rightmost) occurrence of cin the pattern. Otherwise, we conventionally deﬁne last(c)=−1. If we assume that the alphabet is of ﬁxed, ﬁnite size, and that characters can be converted to indices of an array (for example, by using their character code), the lastfunction can be easily implemented as a lookup t...
+
+--------------------------------------------------------------------------------
+
+## SEARCH TREES
+**Priority:** Tier 3 | **Interview Weight:** Medium
+**Pages:** 459-530 (72 pages extracted)
+
+**Why It Matters:** Self-balancing structures for ordered data.
+
+**Key Concepts to Master:**
+  • BST
+  • AVL Trees
+  • Red-Black Trees
+  • B-Trees
+
+**From the Textbook:**
+10.4. Skip Lists 441 Removal in a Skip List Like the search and insertion algorithms, the removal algorithm for a skip list is quite simple. In fact, it is even easier than the insertion algorithm. To perform the map operation remove( k), we will begin by executing method SkipSearch( k). If the returned position pstores an entry with key different from k, we return null. Otherwise, we remove pand all the positions above p, which are easily accessed by usingabove operations to climb up the tower of this entry in Sstarting at posi- tion p. While removing levels of the tower, we reestablish links...
+
+--------------------------------------------------------------------------------
