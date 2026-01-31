@@ -66,16 +66,6 @@ export function Header() {
 
         {/* Right Actions */}
         <div className="navbar-actions">
-          {/* Leaderboard Quick Access */}
-          <Link 
-            to="/course/leaderboard" 
-            className={`leaderboard-quick-btn ${isActive('/course/leaderboard') ? 'active' : ''}`}
-            title="View Leaderboard"
-          >
-            <Trophy size={20} />
-            <span className="leaderboard-text">Leaderboard</span>
-          </Link>
-
           {/* User Stats */}
           <div className="user-stats">
             <div className="stat">
