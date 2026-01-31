@@ -1,8 +1,9 @@
 -- EDUINFO Platform - Supabase Database Schema
--- Run this SQL in your Supabase SQL Editor
+-- Copy ONLY this SQL code (lines 1-147) and paste in Supabase SQL Editor
+-- DO NOT copy any markdown text below this SQL
 
--- Enable Row Level Security
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
+-- Enable Row Level Security (skip this line if you get an error about jwt_secret)
+-- ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
 
 -- Create user_profiles table (optional - for extended user data)
 CREATE TABLE IF NOT EXISTS public.user_profiles (

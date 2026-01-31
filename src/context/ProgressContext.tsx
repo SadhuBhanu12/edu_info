@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useMemo, useCallback, useEffect, useRef } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import React, { createContext, useContext, useMemo, useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
 import type { UserProgress, UserProblemProgress, ProblemStatus } from '../types';
@@ -37,11 +36,16 @@ const defaultProgress: UserProgress = {
 const ProgressContext = createContext<ProgressContextType | null>(null);
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
-  const [progress, setProgress] = useLocalStorage<UserProgress>('dsa-progress', defaultProgress);
+  // ENTERPRISE PATTERN: Pure React state - NO localStorage
+  // Each user session gets fresh state from database only
+  const [progress, setProgress] = useState<UserProgress>(defaultProgress);
   const { user } = useAuth();
   const syncQueueRef = useRef<Map<string, { status: ProblemStatus; progress: UserProblemProgress }>>(new Map());
   const syncTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [isLoadingProgress, setIsLoadingProgress] = React.useState(true);
+  
+  // Track current user ID to detect user changes
+  const currentUserIdRef = useRef<string | null>(null);
 
   // Sync user_progress table (streak, theory progress, etc.)
   const syncUserProgress = useCallback(async (currentProgress: UserProgress) => {
@@ -54,7 +58,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       console.log('🔄 [DB Sync] Syncing user progress to database...', {
         userId: user.id,
         totalSolved: currentProgress.totalSolved,
-        streak: currentProgress.todayStreak
+        streak: currentProgress.todayStreak,
+        lastActive: currentProgress.lastActiveDate
       });
 
       const { data, error } = await supabase
@@ -68,17 +73,23 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
-        });
+        })
+        .select();
 
       if (error) {
         console.error('❌ [DB Sync] Error syncing user progress:', error);
         console.error('Error details:', {
           message: error.message,
           code: error.code,
-          details: error.details
+          details: error.details,
+          hint: error.hint
         });
       } else {
-        console.log('✅ [DB Sync] User progress synced successfully', data);
+        console.log('✅ [DB Sync] User progress synced successfully:', {
+          totalSolved: currentProgress.totalSolved,
+          streak: currentProgress.todayStreak
+        });
+        console.log('✅ [DB Sync] Database confirmed:', data);
       }
     } catch (error) {
       console.error('❌ [DB Sync] Exception in syncUserProgress:', error);
@@ -87,11 +98,19 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   // Batch sync to Supabase - processes all queued updates
   const processSyncQueue = useCallback(async () => {
-    if (!user || syncQueueRef.current.size === 0) return;
+    if (!user || syncQueueRef.current.size === 0) {
+      console.log('🔄 [Sync] Skipping sync - no user or empty queue');
+      return;
+    }
+
+    console.log(`🔄 [Sync] Processing ${syncQueueRef.current.size} problem updates...`);
 
     const updates = Array.from(syncQueueRef.current.entries()).map(([problemId, data]) => {
       const problem = striverSheetComplete.find(p => p.id === problemId);
-      if (!problem) return null;
+      if (!problem) {
+        console.warn(`⚠️ Problem ${problemId} not found in sheet`);
+        return null;
+      }
 
       return {
         user_id: user.id,
@@ -110,36 +129,57 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       };
     }).filter(Boolean);
 
-    if (updates.length === 0) return;
+    if (updates.length === 0) {
+      console.warn('⚠️ [Sync] No valid updates to sync');
+      return;
+    }
+
+    console.log('📤 [Sync] Saving to database:', updates);
 
     try {
-      const { error } = await supabase
+      const { data: result, error } = await supabase
         .from('problem_submissions')
         .upsert(updates, {
           onConflict: 'user_id,problem_id'
-        });
+        })
+        .select();
 
-      if (!error) {
+      if (error) {
+        console.error('❌ [Sync] Database error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+      } else {
+        console.log('✅ [Sync] Successfully saved', updates.length, 'problems to database');
+        console.log('✅ [Sync] Database confirmed:', result);
         syncQueueRef.current.clear();
       }
     } catch (error) {
-      console.error('Batch sync error:', error);
+      console.error('❌ [Sync] Exception during sync:', error);
     }
   }, [user]);
 
   // Queue a sync and schedule batch processing
   const queueSync = useCallback((problemId: string, status: ProblemStatus, problemProgress: UserProblemProgress) => {
-    if (!user) return;
+    if (!user) {
+      console.warn('⚠️ [Sync] Cannot queue sync - no user logged in');
+      return;
+    }
 
+    console.log('📝 [Sync] Queued problem:', problemId, 'status:', status);
     syncQueueRef.current.set(problemId, { status, progress: problemProgress });
 
     if (syncTimerRef.current) {
       clearTimeout(syncTimerRef.current);
     }
 
+    // Reduced delay for faster sync (300ms instead of 1000ms)
     syncTimerRef.current = setTimeout(() => {
       processSyncQueue();
-    }, 1000);
+    }, 300);
   }, [user, processSyncQueue]);
 
   // Cleanup and immediate sync on unmount
@@ -156,7 +196,26 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   // Load user progress from Supabase on login
   useEffect(() => {
+    // ENTERPRISE PATTERN: Detect user changes and clear state
+    const newUserId = user?.id || null;
+    const userChanged = currentUserIdRef.current !== null && currentUserIdRef.current !== newUserId;
+    
+    if (userChanged) {
+      console.log('👤 [Session] User changed - clearing previous user data', {
+        oldUser: currentUserIdRef.current,
+        newUser: newUserId
+      });
+      // Reset to default state before loading new user's data
+      setProgress(defaultProgress);
+      syncQueueRef.current.clear();
+    }
+    
+    currentUserIdRef.current = newUserId;
+    
     if (!user) {
+      // CRITICAL: Reset progress when user logs out to prevent data leakage
+      console.log('🔄 [Session] User logged out - clearing progress data');
+      setProgress(defaultProgress);
       setIsLoadingProgress(false);
       return;
     }
@@ -185,6 +244,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
         console.log('📥 [DB Load] User progress query result:', { 
           hasData: !!userProgressData, 
+          totalSolved: userProgressData?.total_solved,
+          streak: userProgressData?.streak,
           error: progressError?.message,
           errorCode: progressError?.code
         });
@@ -197,6 +258,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
         console.log('📥 [DB Load] Problem submissions query result:', { 
           count: submissions?.length || 0,
+          problems: submissions?.map(s => ({ id: s.problem_id, status: s.status })),
           error: submissionsError?.message 
         });
 

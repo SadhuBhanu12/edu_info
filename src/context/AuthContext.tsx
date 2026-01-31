@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { clearUserData } from '../utils/userStorage';
 
 interface AuthContextType {
   user: User | null;
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         case 'SIGNED_OUT':
           setSession(null);
           setUser(null);
-          // Clear any cached data
+          // Clear any cached auth tokens
           localStorage.removeItem('supabase.auth.token');
           break;
         case 'TOKEN_REFRESHED':
@@ -129,9 +130,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
+      // CRITICAL: Store user ID before clearing session
+      const userId = user?.id;
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Error signing out:', error);
+      }
+      
+      // ENTERPRISE PATTERN: Clear ALL user-specific cached data
+      if (userId) {
+        clearUserData(userId);
+        console.log('🔐 User data cleared for session:', userId);
       }
     } catch (error) {
       console.error('Sign out error:', error);
@@ -139,7 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Always clear local state for security
       setSession(null);
       setUser(null);
-      // Clear any cached data
+      // Clear any cached auth tokens
       localStorage.removeItem('supabase.auth.token');
     }
   };

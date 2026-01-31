@@ -17,21 +17,11 @@ const SignUpPage = () => {
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
-  // Password strength checker
-  const getPasswordStrength = (pwd: string): { strength: number; label: string } => {
-    let strength = 0;
-    if (pwd.length >= 8) strength++;
-    if (pwd.length >= 12) strength++;
-    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
-    if (/[0-9]/.test(pwd)) strength++;
-    if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
-
-    if (strength <= 1) return { strength, label: 'Weak' };
-    if (strength <= 3) return { strength, label: 'Medium' };
-    return { strength, label: 'Strong' };
-  };
-
-  const passwordStrength = password ? getPasswordStrength(password) : null;
+  // Check if Supabase is configured
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const isSupabaseConfigured = supabaseUrl && supabaseKey && 
+    !supabaseUrl.includes('placeholder') && !supabaseKey.includes('placeholder');
 
   // Email validation
   const isValidEmail = (email: string): boolean => {
@@ -75,7 +65,7 @@ const SignUpPage = () => {
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters for security');
+      setError('Password must be at least 8 characters');
       return;
     }
 
@@ -84,14 +74,8 @@ const SignUpPage = () => {
       return;
     }
 
-    // Check password strength
-    if (passwordStrength && passwordStrength.strength < 2) {
-      setError('Please choose a stronger password. Use a mix of letters, numbers, and symbols.');
-      return;
-    }
-
     if (password !== confirmPassword) {
-      setError('Passwords do not match. Please check and try again.');
+      setError('Passwords do not match');
       return;
     }
 
@@ -100,15 +84,25 @@ const SignUpPage = () => {
       const { data, error: signUpError } = await signUp(sanitizedEmail, password, sanitizedName);
 
       if (signUpError) {
-        // Handle specific error cases with secure messaging
-        if (signUpError.message.includes('already registered') || signUpError.message.includes('already been registered')) {
+        // Handle specific error cases
+        console.error('Signup error:', signUpError);
+        
+        // Check if Supabase is not configured
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('placeholder')) {
+          setError('⚠️ Database not configured. Please set up Supabase credentials in Vercel environment variables. See VERCEL_SETUP_CHECKLIST.md for instructions.');
+        } else if (signUpError.message.includes('already registered') || signUpError.message.includes('User already registered')) {
           setError('This email is already registered. Please try logging in instead.');
-        } else if (signUpError.message.includes('Invalid')) {
+        } else if (signUpError.message.includes('Invalid email')) {
           setError('Please enter a valid email address.');
-        } else if (signUpError.message.includes('weak')) {
-          setError('Password is too weak. Please use a stronger password.');
+        } else if (signUpError.message.includes('Password')) {
+          setError(signUpError.message);
+        } else if (signUpError.message.includes('fetch') || signUpError.message.includes('network')) {
+          setError('Unable to connect to database. Please check your internet connection or verify Supabase is configured correctly.');
         } else {
-          setError('Unable to create account. Please try again later.');
+          setError(signUpError.message || 'Unable to create account. Please try again.');
         }
         setLoading(false);
       } else if (data?.user) {
@@ -165,6 +159,17 @@ const SignUpPage = () => {
               <span>Secure & Private</span>
             </div>
           </div>
+
+          {!isSupabaseConfigured && (
+            <div className="error-message" style={{ marginTop: '20px' }}>
+              <AlertCircle size={18} />
+              <div>
+                <strong>Setup Required:</strong> Database not configured.
+                <br />
+                <small>Follow <a href="https://github.com/yourusername/dsa_tracter/blob/main/VERCEL_SETUP_CHECKLIST.md" target="_blank" rel="noopener noreferrer" style={{ color: '#6366f1', textDecoration: 'underline' }}>this 5-minute guide</a> to enable account creation.</small>
+              </div>
+            </div>
+          )}
 
           {error && !success && (
             <div className="error-message">
@@ -246,21 +251,6 @@ const SignUpPage = () => {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                {password && passwordStrength && (
-                  <div className="password-strength">
-                    <div className="strength-bar">
-                      <div 
-                        className="strength-fill"
-                        style={{
-                          width: `${(passwordStrength.strength / 5) * 100}%`
-                        }}
-                      />
-                    </div>
-                    <span className="strength-label">
-                      {passwordStrength.label}
-                    </span>
-                  </div>
-                )}
                 <p className="field-hint">
                   Use 8+ characters with a mix of letters, numbers & symbols
                 </p>
