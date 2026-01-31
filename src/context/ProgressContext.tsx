@@ -220,6 +220,11 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    console.log('🔐 [Session] User logged in, starting data load...', { 
+      userId: user.id,
+      email: user.email 
+    });
+
     // TUF Standard: Never block the UI - load instantly, sync in background
     // Set loading to false immediately to prevent blocking
     const loadingTimeout = setTimeout(() => {
@@ -333,8 +338,11 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         console.log('✅ [DB Load] Progress loaded successfully:', {
           totalSolved: newProgress.totalSolved,
           streak: newProgress.todayStreak,
-          topicsCount: Object.keys(newProgress.topicsProgress).length
+          topicsCount: Object.keys(newProgress.topicsProgress).length,
+          problemsCount: Object.values(newProgress.topicsProgress)
+            .reduce((sum, topic) => sum + Object.keys(topic.problemsProgress || {}).length, 0)
         });
+        console.log('✅ [DB Load] Full progress object:', newProgress);
         clearTimeout(loadingTimeout);
         setIsLoadingProgress(false);
       } catch (error) {
@@ -344,13 +352,13 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    loadProgressFromSupabase();
+    
     // Cleanup timeout on unmount
     return () => {
       clearTimeout(loadingTimeout);
     };
-
-    loadProgressFromSupabase();
-  }, [user, setProgress]);
+  }, [user]); // FIXED: Removed setProgress from dependencies
 
   const updateStreak = useCallback((currentProgress: UserProgress): UserProgress => {
     const today = new Date().toISOString().split('T')[0];
@@ -432,6 +440,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       
       // Background sync (non-blocking) - happens AFTER UI update
       Promise.resolve().then(() => {
+        console.log('💾 [Save] Triggering sync for problem:', problemId, 'status:', status);
         queueSync(problemId, status, newProblemProgress);
         syncUserProgress(updatedProgressWithStreak);
       }).catch((error) => {
