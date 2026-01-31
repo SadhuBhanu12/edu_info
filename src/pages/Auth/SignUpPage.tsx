@@ -147,22 +147,6 @@ const SignUpPage = () => {
             <span>EDUINFO</span>
           </Link>
           
-          {/* Local mode warning */}
-          {!import.meta.env.VITE_SUPABASE_URL && (
-            <div className="info-banner" style={{
-              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-              color: '#1e293b',
-              padding: '1rem',
-              borderRadius: '12px',
-              marginBottom: '1.5rem',
-              fontSize: '0.875rem',
-              lineHeight: '1.5',
-              border: '2px solid rgba(251, 191, 36, 0.3)'
-            }}>
-              <strong>⚠️ Local Mode:</strong> Cloud features are disabled. Your data will only be saved in this browser. To enable cloud sync, configure Supabase environment variables.
-            </div>
-          )}
-          
           <h1 className="auth-title">Join EDUINFO</h1>
           <p className="auth-subtitle">
             Start your learning journey with our comprehensive course library

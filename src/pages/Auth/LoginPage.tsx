@@ -101,22 +101,6 @@ const LoginPage = () => {
             <span>EDUINFO</span>
           </Link>
           
-          {/* Local mode warning */}
-          {!import.meta.env.VITE_SUPABASE_URL && (
-            <div className="info-banner" style={{
-              background: 'linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%)',
-              color: '#ffffff',
-              padding: '1rem',
-              borderRadius: '12px',
-              marginBottom: '1.5rem',
-              fontSize: '0.875rem',
-              lineHeight: '1.5',
-              border: '2px solid rgba(34, 211, 238, 0.3)',
-              fontWeight: '500'
-            }}>
-              <strong>💡 Local Demo Mode:</strong> Enter any email to continue. An account will be created automatically if needed. Your data is stored locally in this browser.
-            </div>
-          )}
           <h1 className="auth-title">Welcome Back</h1>
           <p className="auth-subtitle">
             Continue your learning journey across multiple courses

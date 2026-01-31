@@ -33,30 +33,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }, 500);
 
-    // Check if Supabase is properly configured
-    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!hasSupabase) {
-      // Check for local user session
-      const localUserStr = localStorage.getItem('local_user');
-      if (localUserStr) {
-        try {
-          const localUser = JSON.parse(localUserStr);
-          const mockSession = {
-            user: localUser,
-            access_token: 'local-token',
-          };
-          setUser(localUser as any);
-          setSession(mockSession as any);
-        } catch (err) {
-          console.error('Failed to parse local user:', err);
-        }
-      }
-      clearTimeout(authTimeout);
-      setLoading(false);
-      return;
-    }
-
     // Get initial session with error handling
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
@@ -118,49 +94,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    // Check if Supabase is properly configured
-    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!hasSupabase) {
-      // Local-only mode - create a mock user session
-      console.warn('🔒 Running in local-only mode. User data will only be saved in browser storage.');
-      
-      try {
-        // Create a local user object
-        const localUser = {
-          id: `local-${Date.now()}`,
-          email,
-          user_metadata: {
-            full_name: fullName,
-            display_name: fullName,
-          },
-          created_at: new Date().toISOString(),
-        };
-        
-        // Store in localStorage
-        localStorage.setItem('local_user', JSON.stringify(localUser));
-        localStorage.setItem('local_user_email', email);
-        localStorage.setItem('local_user_name', fullName);
-        
-        // Mock session
-        const mockSession = {
-          user: localUser as any,
-          access_token: 'local-token',
-        };
-        
-        setUser(localUser as any);
-        setSession(mockSession as any);
-        
-        return { 
-          data: { user: localUser, session: mockSession }, 
-          error: null 
-        };
-      } catch (error: any) {
-        console.error('Local signup error:', error);
-        return { data: null, error: { message: 'Failed to create local account' } as any };
-      }
-    }
-    
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -182,52 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    // Check if Supabase is properly configured
-    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!hasSupabase) {
-      // Local-only mode - very permissive for demo/testing
-      console.warn('🔒 Running in local-only mode. Using browser storage for authentication.');
-      
-      try {
-        let localUserStr = localStorage.getItem('local_user');
-        let localUser;
-        
-        if (!localUserStr) {
-          // Auto-create a local account if it doesn't exist
-          console.log('Creating local account on first login...');
-          localUser = {
-            id: `local-${Date.now()}`,
-            email,
-            user_metadata: {
-              full_name: email.split('@')[0], // Use email username as name
-              display_name: email.split('@')[0],
-            },
-            created_at: new Date().toISOString(),
-          };
-          
-          localStorage.setItem('local_user', JSON.stringify(localUser));
-          localStorage.setItem('local_user_email', email);
-          localStorage.setItem('local_user_name', email.split('@')[0]);
-        } else {
-          localUser = JSON.parse(localUserStr);
-        }
-        
-        const mockSession = {
-          user: localUser,
-          access_token: 'local-token',
-        };
-        
-        setUser(localUser as any);
-        setSession(mockSession as any);
-        
-        return { error: null };
-      } catch (error: any) {
-        console.error('Local signin error:', error);
-        return { error: { message: 'Failed to sign in. Please try again.' } as any };
-      }
-    }
-    
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -241,15 +128,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    // Check if Supabase is properly configured
-    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
     try {
-      if (hasSupabase) {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          console.error('Error signing out:', error);
-        }
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
       }
     } catch (error) {
       console.error('Sign out error:', error);
@@ -259,9 +141,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       // Clear any cached data
       localStorage.removeItem('supabase.auth.token');
-      localStorage.removeItem('local_user');
-      localStorage.removeItem('local_user_email');
-      localStorage.removeItem('local_user_name');
     }
   };
 
