@@ -5,6 +5,7 @@ import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig(({ mode }) => {
   const config: UserConfig = {
+    base: '/',
     plugins: [
       react(),
     // Bundle analyzer (only in analyze mode)
