@@ -1,50 +1,19 @@
-.leaderboard-page {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  animation: fadeIn 0.4s ease-out;
+.leaderboard-page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0f 0%, #0f0f23 50%, #1a1a2e 100%);
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
 }
 
-.page-header {
-  margin-bottom: 2rem;
-}
-
-.page-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-}
-
-.page-subtitle {
-  color: #94a3b8;
-  font-size: 1.1rem;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Remove any potential spacing issues */
+.leaderboard-page-wrapper > * {
+  width: 100%;
 }
 
 @media (max-width: 768px) {
-  .leaderboard-page {
-    padding: 1rem;
-  }
-
-  .page-header h1 {
-    font-size: 2rem;
-  }
-
-  .page-subtitle {
-    font-size: 1rem;
+  .leaderboard-page-wrapper {
+    padding: 0;
   }
 }

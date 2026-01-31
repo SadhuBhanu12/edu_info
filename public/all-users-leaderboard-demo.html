@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard All Users Feature Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 48px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 8px 32px rgba(34, 211, 238, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #22d3ee;
+        }
+        
+        .feature-description {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+        
+        .demo-title {
+            font-size: 2rem;
+            margin-bottom: 24px;
+            color: #22d3ee;
+        }
+        
+        .mockup {
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .user-count {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(34, 211, 238, 0.3);
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        
+        .leaderboard-table th {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+        
+        .leaderboard-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .leaderboard-table tr:hover {
+            background: rgba(34, 211, 238, 0.05);
+        }
+        
+        .rank-cell {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .current-user {
+            background: rgba(34, 211, 238, 0.1) !important;
+            border: 2px solid rgba(34, 211, 238, 0.3);
+        }
+        
+        .you-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .page-info {
+            padding: 0 16px;
+            font-weight: 600;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 32px 0;
+        }
+        
+        .comparison-box {
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid;
+        }
+        
+        .before {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .after {
+            background: rgba(34, 197, 94, 0.05);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        .comparison-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .before .comparison-title {
+            color: #ef4444;
+        }
+        
+        .after .comparison-title {
+            color: #22c55e;
+        }
+        
+        .highlight {
+            background: rgba(34, 211, 238, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #22d3ee;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box {
+                max-width: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 All Users Leaderboard</h1>
+        <p class="subtitle">Everyone is visible. Complete transparency. Total competition!</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title">All Users Visible</h3>
+                <p class="feature-description">No more limits! See every single user on the platform.</p>
+                <ul class="feature-list">
+                    <li>No 100-user cap</li>
+                    <li>Complete rankings</li>
+                    <li>Full transparency</li>
+                    <li>Everyone counts</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3 class="feature-title">Instant Search</h3>
+                <p class="feature-description">Find any user by name or ID instantly.</p>
+                <ul class="feature-list">
+                    <li>Real-time filtering</li>
+                    <li>Case-insensitive</li>
+                    <li>Search by name/ID</li>
+                    <li>Instant results</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3 class="feature-title">Smart Pagination</h3>
+                <p class="feature-description">Navigate through users smoothly, 50 at a time.</p>
+                <ul class="feature-list">
+                    <li>50 users per page</li>
+                    <li>First/Prev/Next/Last</li>
+                    <li>Page indicators</li>
+                    <li>Range display</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <h3 class="feature-title">"Find Me" Button</h3>
+                <p class="feature-description">Jump to your position with one click.</p>
+                <ul class="feature-list">
+                    <li>Auto-scroll to you</li>
+                    <li>Correct page loaded</li>
+                    <li>Row highlighted</li>
+                    <li>One-click access</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">User Count</h3>
+                <p class="feature-description">See exactly how many users are competing.</p>
+                <ul class="feature-list">
+                    <li>Total users shown</li>
+                    <li>Filtered count</li>
+                    <li>Real-time updates</li>
+                    <li>Platform stats</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Lightning Fast</h3>
+                <p class="feature-description">Client-side processing for instant responses.</p>
+                <ul class="feature-list">
+                    <li>No loading delays</li>
+                    <li>Instant search</li>
+                    <li>Smooth navigation</li>
+                    <li>Optimized performance</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">📱 UI Demo</h2>
+            
+            <div class="mockup">
+                <div class="stats-bar">
+                    <div class="user-count">
+                        <span>👥</span>
+                        <span><strong>156 Users</strong></span>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search users..." />
+                        <button class="btn">Find Me</button>
+                    </div>
+                </div>
+                
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>User</th>
+                            <th>Problems</th>
+                            <th>Difficulty</th>
+                            <th>Streak</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="rank-cell">👑</td>
+                            <td>TopCoder123</td>
+                            <td>45</td>
+                            <td>15E / 20M / 10H</td>
+                            <td>🔥 14</td>
+                            <td><strong>1,250</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">🥈</td>
+                            <td>CodeMaster</td>
+                            <td>42</td>
+                            <td>20E / 15M / 7H</td>
+                            <td>🔥 7</td>
+                            <td><strong>1,100</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">🥉</td>
+                            <td>AlgoExpert</td>
+                            <td>38</td>
+                            <td>18E / 12M / 8H</td>
+                            <td>🔥 21</td>
+                            <td><strong>1,050</strong></td>
+                        </tr>
+                        <tr class="current-user">
+                            <td class="rank-cell">#4</td>
+                            <td>You<span class="you-badge">YOU</span></td>
+                            <td>23</td>
+                            <td>10E / 8M / 5H</td>
+                            <td>🔥 3</td>
+                            <td><strong>725</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">#5</td>
+                            <td>DevGuru</td>
+                            <td>20</td>
+                            <td>12E / 6M / 2H</td>
+                            <td>-</td>
+                            <td><strong>470</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell" style="color: #64748b;">...</td>
+                            <td style="color: #64748b;">...</td>
+                            <td style="color: #64748b;">...</td>
+                            <td style="color: #64748b;">...</td>
+                            <td style="color: #64748b;">...</td>
+                            <td style="color: #64748b;">...</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">#156</td>
+                            <td>NewLearner</td>
+                            <td>1</td>
+                            <td>1E / 0M / 0H</td>
+                            <td>-</td>
+                            <td><strong>10</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="pagination">
+                    <button class="btn">First</button>
+                    <button class="btn">Previous</button>
+                    <div class="page-info">
+                        Page <strong>1</strong> of <strong>4</strong>
+                        <div style="font-size: 0.875rem; color: #94a3b8;">(Showing 1-50 of 156)</div>
+                    </div>
+                    <button class="btn">Next</button>
+                    <button class="btn">Last</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="comparison">
+            <div class="comparison-box before">
+                <h3 class="comparison-title">❌ Before (Limited)</h3>
+                <ul class="feature-list">
+                    <li style="color: #ef4444;">Only top 100 visible</li>
+                    <li style="color: #ef4444;">Users #101+ invisible</li>
+                    <li style="color: #ef4444;">No search available</li>
+                    <li style="color: #ef4444;">Hard to find yourself</li>
+                    <li style="color: #ef4444;">Unknown user count</li>
+                    <li style="color: #ef4444;">Limited competition view</li>
+                </ul>
+            </div>
+            
+            <div class="comparison-box after">
+                <h3 class="comparison-title">✅ After (Complete)</h3>
+                <ul class="feature-list">
+                    <li style="color: #22c55e;">ALL users visible</li>
+                    <li style="color: #22c55e;">Everyone included</li>
+                    <li style="color: #22c55e;">Instant search</li>
+                    <li style="color: #22c55e;">"Find Me" button</li>
+                    <li style="color: #22c55e;">Total count shown</li>
+                    <li style="color: #22c55e;">Full transparency</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">🎯 Key Benefits</h2>
+            <p style="margin-bottom: 24px;">The new leaderboard system provides complete visibility and fairness:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4 style="color: #22d3ee; margin-bottom: 12px;">For Students</h4>
+                    <p>See where you truly stand among <span class="highlight">all peers</span>, not just the top 100.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4 style="color: #22d3ee; margin-bottom: 12px;">For Motivation</h4>
+                    <p>Everyone's progress is visible, encouraging <span class="highlight">continuous improvement</span>.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4 style="color: #22d3ee; margin-bottom: 12px;">For Competition</h4>
+                    <p>Find competitors at your level and <span class="highlight">track rankings</span> accurately.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 48px 0;">
+            <h2 style="font-size: 2rem; margin-bottom: 16px; color: #22d3ee;">
+                🎉 Everyone Counts!
+            </h2>
+            <p style="font-size: 1.25rem; color: #94a3b8; margin-bottom: 32px;">
+                No hidden ranks. Full transparency. Complete competition.
+            </p>
+            <button class="btn" style="font-size: 1.125rem; padding: 16px 32px;" onclick="alert('Navigate to /course/leaderboard to see the new system!')">
+                View Leaderboard →
+            </button>
+        </div>
+    </div>
+</body>
+</html>

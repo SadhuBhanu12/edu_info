@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Target, Search, Filter, BookOpen } from 'lucide-react';
 import { ProblemCard } from '../../components/Cards';
 import { striverSheetComplete } from '../../data/striverSheetComplete';
@@ -17,23 +17,8 @@ export function Problems() {
   // Use complete Striver sheet with 1680 questions
   const allProblems = striverSheetComplete;
 
-  const filteredProblems = allProblems.filter(problem => {
-    const matchesSearch = problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         problem.patterns.some(p => p.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesDifficulty = difficultyFilter === 'all' || problem.difficulty === difficultyFilter;
-    const matchesPlatform = platformFilter === 'all' || problem.platform === platformFilter;
-    const matchesTopic = topicFilter === 'all' || problem.topicId === topicFilter;
-    
-    let matchesStatus = true;
-    if (statusFilter !== 'all') {
-      const progress = getProblemProgress(problem.id);
-      matchesStatus = progress?.status === statusFilter || (!progress && statusFilter === 'unsolved');
-    }
-
-    return matchesSearch && matchesDifficulty && matchesStatus && matchesPlatform && matchesTopic;
-  });
-
-  const getFilterCounts = () => {
+  // Memoize filter counts to avoid recalculating on every render
+  const counts = useMemo(() => {
     const counts = {
       all: allProblems.length,
       unsolved: 0,
@@ -48,9 +33,26 @@ export function Problems() {
     });
 
     return counts;
-  };
+  }, [allProblems, getProblemProgress]);
 
-  const counts = getFilterCounts();
+  // Memoize filtered problems to improve performance
+  const filteredProblems = useMemo(() => {
+    return allProblems.filter(problem => {
+      const matchesSearch = problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           problem.patterns.some(p => p.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesDifficulty = difficultyFilter === 'all' || problem.difficulty === difficultyFilter;
+      const matchesPlatform = platformFilter === 'all' || problem.platform === platformFilter;
+      const matchesTopic = topicFilter === 'all' || problem.topicId === topicFilter;
+      
+      let matchesStatus = true;
+      if (statusFilter !== 'all') {
+        const progress = getProblemProgress(problem.id);
+        matchesStatus = progress?.status === statusFilter || (!progress && statusFilter === 'unsolved');
+      }
+
+      return matchesSearch && matchesDifficulty && matchesStatus && matchesPlatform && matchesTopic;
+    });
+  }, [allProblems, searchQuery, difficultyFilter, statusFilter, platformFilter, topicFilter, getProblemProgress]);
 
   return (
     <div className="problems-page">

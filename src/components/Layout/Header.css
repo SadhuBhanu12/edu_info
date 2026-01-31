@@ -155,6 +155,74 @@
   border: 1px solid rgba(167, 139, 250, 0.3);
 }
 
+/* Leaderboard Quick Button */
+.leaderboard-quick-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 8px;
+  color: #fbbf24;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.leaderboard-quick-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.leaderboard-quick-btn:hover::before {
+  left: 100%;
+}
+
+.leaderboard-quick-btn:hover {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.25));
+  border-color: rgba(251, 191, 36, 0.6);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.leaderboard-quick-btn.active {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
+  border-color: rgba(251, 191, 36, 0.8);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+}
+
+.leaderboard-quick-btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  animation: trophyBounce 2s ease-in-out infinite;
+}
+
+@keyframes trophyBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.leaderboard-text {
+  font-weight: 600;
+}
+
 .stat {
   display: flex;
   align-items: center;
@@ -357,6 +425,14 @@
 
   .user-stats {
     display: none;
+  }
+
+  .leaderboard-quick-btn .leaderboard-text {
+    display: none;
+  }
+
+  .leaderboard-quick-btn {
+    padding: 0.5rem;
   }
 
   .user-menu {

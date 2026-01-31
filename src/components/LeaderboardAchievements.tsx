@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Medal, TrendingUp, Flame, Target, Award, Crown, Star, Loader2 } from 'lucide-react';
+import { Trophy, Medal, TrendingUp, Flame, Target, Award, Crown, Star, Loader2, Users, Zap, BarChart3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProgress } from '../context/ProgressContext';
 import { supabase } from '../lib/supabase';
 import type { Leaderboard as LeaderboardType, Achievement, Badge } from '../types';
 import './LeaderboardAchievements.css';
+import './LeaderboardProfessional.css';
 
 interface LeaderboardAchievementsProps {
   userId?: string;
@@ -22,6 +23,13 @@ interface LeaderboardUser {
   rank: number;
 }
 
+interface UserRankInfo {
+  rank: number;
+  total_users: number;
+  points: number;
+  total_solved: number;
+}
+
 export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = () => {
   const { user } = useAuth();
   const { progress, getTotalStats, getStreak } = useProgress();
@@ -30,127 +38,313 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardType[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
-  const [userRank, setUserRank] = useState<number>(0);
+  const [userRankInfo, setUserRankInfo] = useState<UserRankInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(50);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [showUpdateIndicator, setShowUpdateIndicator] = useState(false);
 
   const stats = getTotalStats();
   const streak = getStreak();
 
   // Fetch real leaderboard data from Supabase
   useEffect(() => {
-    const fetchLeaderboardData = async () => {
-      if (!user) {
-        setLoading(false);
-        setLeaderboardData([]);
-        setAchievements([]);
-        setBadges([]);
+    fetchLeaderboardData();
+  }, [user, timeFilter]);
+
+  // Real-time subscription for automatic updates
+  useEffect(() => {
+    if (!user) return;
+
+    // Subscribe to problem_submissions changes
+    const channel = supabase
+      .channel('leaderboard-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'problem_submissions',
+          filter: `status=eq.solved` // Only listen to solved problems
+        },
+        (payload) => {
+          console.log('Real-time update detected:', payload);
+          // Show update indicator
+          setShowUpdateIndicator(true);
+          // Refresh leaderboard when any user solves a problem
+          fetchLeaderboardData();
+          // Hide indicator after 3 seconds
+          setTimeout(() => setShowUpdateIndicator(false), 3000);
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, timeFilter]);
+
+  const fetchLeaderboardData = async () => {
+    if (!user) {
+      setLoading(false);
+      setLeaderboardData([]);
+      setUserRankInfo(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch leaderboard data using the get_leaderboard function
+      const { data: leaderboardUsers, error: leaderboardError } = await supabase
+        .rpc('get_leaderboard', {
+          time_filter: timeFilter
+        });
+
+      if (leaderboardError) {
+        console.error('Leaderboard RPC error:', leaderboardError);
+        // Fallback: Calculate from problem_submissions directly
+        await fetchLeaderboardFallback();
         return;
       }
 
-      try {
-        setLoading(true);
-        setError(null);
+      if (leaderboardUsers && leaderboardUsers.length > 0) {
+        // Format leaderboard data
+        const formattedLeaderboard: LeaderboardType[] = leaderboardUsers.map((u: LeaderboardUser) => ({
+          userId: u.user_id,
+          userName: u.user_id === user.id ? 'You' : (u.display_name || `User ${u.user_id.substring(0, 8)}`),
+          avatar: getAvatarForUser(u.user_id === user.id, u.display_name),
+          rank: Number(u.rank),
+          points: Number(u.points),
+          problemsSolved: Number(u.total_solved),
+          streak: u.user_id === user.id ? streak : Number(u.streak || 0),
+          easyCount: Number(u.easy_count || 0),
+          mediumCount: Number(u.medium_count || 0),
+          hardCount: Number(u.hard_count || 0)
+        }));
 
-        // Fetch leaderboard data from Supabase
-        const { data: leaderboardUsers, error: leaderboardError } = await supabase
-          .rpc('get_leaderboard', {
-            time_filter: timeFilter
+        setLeaderboardData(formattedLeaderboard);
+
+        // Fetch user rank info
+        await fetchUserRankInfo();
+      } else {
+        setLeaderboardData([]);
+        setUserRankInfo(null);
+      }
+
+    } catch (err: any) {
+      console.error('Error fetching leaderboard:', err);
+      setError(err.message || 'Failed to load leaderboard. Please try again.');
+      setLeaderboardData([]);
+      setUserRankInfo(null);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      setLastUpdated(new Date());
+    }
+  };
+
+  // Fallback method if RPC function doesn't exist
+  const fetchLeaderboardFallback = async () => {
+    try {
+      const { data: submissions, error: submissionsError } = await supabase
+        .from('problem_submissions')
+        .select('user_id, status, difficulty, solved_at, problem_id')
+        .eq('status', 'solved')
+        .order('solved_at', { ascending: false });
+
+      if (submissionsError) throw submissionsError;
+
+      if (!submissions || submissions.length === 0) {
+        setLeaderboardData([]);
+        setUserRankInfo(null);
+        return;
+      }
+
+      // Calculate user stats
+      const userStatsMap = new Map<string, {
+        solved: Set<string>;
+        easy: number;
+        medium: number;
+        hard: number;
+        points: number;
+      }>();
+
+      submissions.forEach((sub: any) => {
+        if (!userStatsMap.has(sub.user_id)) {
+          userStatsMap.set(sub.user_id, {
+            solved: new Set(),
+            easy: 0,
+            medium: 0,
+            hard: 0,
+            points: 0
           });
-
-        if (leaderboardError) {
-          console.error('Leaderboard fetch error:', leaderboardError);
-          // If RPC doesn't exist, fetch from problem_submissions
-          const { data: submissions, error: submissionsError } = await supabase
-            .from('problem_submissions')
-            .select('user_id, status, difficulty, solved_at')
-            .eq('status', 'solved')
-            .order('solved_at', { ascending: false });
-
-          if (submissionsError) {
-            console.error('Submissions fetch error:', submissionsError);
-            // Set empty leaderboard instead of throwing
-            setLeaderboardData([]);
-            setUserRank(0);
-            setLoading(false);
-            return;
-          }
-
-          // Process submissions to create leaderboard
-          if (!submissions || submissions.length === 0) {
-            setLeaderboardData([]);
-            setUserRank(0);
-            setLoading(false);
-            return;
-          }
-
-          const userStats = new Map<string, { solved: number; easy: number; medium: number; hard: number; points: number }>();
-          
-          submissions.forEach((sub: any) => {
-            if (!userStats.has(sub.user_id)) {
-              userStats.set(sub.user_id, { solved: 0, easy: 0, medium: 0, hard: 0, points: 0 });
-            }
-            const stats = userStats.get(sub.user_id)!;
-            stats.solved++;
-            
-            if (sub.difficulty === 'Easy') {
-              stats.easy++;
-              stats.points += 10;
-            } else if (sub.difficulty === 'Medium') {
-              stats.medium++;
-              stats.points += 25;
-            } else if (sub.difficulty === 'Hard') {
-              stats.hard++;
-              stats.points += 50;
-            }
-          });
-
-          // Convert to leaderboard format
-          const leaderboard: LeaderboardType[] = Array.from(userStats.entries())
-            .map(([userId, stats], index) => ({
-              userId,
-              userName: userId === user.id ? 'You' : `User ${userId.substring(0, 8)}`,
-              avatar: userId === user.id ? '😊' : '👤',
-              rank: index + 1,
-              points: stats.points,
-              problemsSolved: stats.solved,
-              streak: userId === user.id ? streak : 0
-            }))
-            .sort((a, b) => b.points - a.points)
-            .map((item, index) => ({ ...item, rank: index + 1 }))
-            .slice(0, 50); // Top 50
-
-          setLeaderboardData(leaderboard);
-          const currentUserRank = leaderboard.findIndex(u => u.userId === user.id) + 1;
-          setUserRank(currentUserRank > 0 ? currentUserRank : leaderboard.length + 1);
-        } else if (leaderboardUsers) {
-          const formattedLeaderboard: LeaderboardType[] = leaderboardUsers.map((u: LeaderboardUser, index: number) => ({
-            userId: u.user_id,
-            userName: u.user_id === user.id ? 'You' : u.display_name || `User ${u.user_id.substring(0, 8)}`,
-            avatar: u.user_id === user.id ? '😊' : '👤',
-            rank: u.rank || index + 1,
-            points: u.points,
-            problemsSolved: u.total_solved,
-            streak: u.user_id === user.id ? streak : u.streak
-          }));
-
-          setLeaderboardData(formattedLeaderboard);
-          const currentUserRank = formattedLeaderboard.findIndex(u => u.userId === user.id) + 1;
-          setUserRank(currentUserRank > 0 ? currentUserRank : formattedLeaderboard.length + 1);
         }
 
-      } catch (err: any) {
-        console.error('Error fetching leaderboard:', err);
-        setError(err.message || 'Failed to load leaderboard. Please try again.');
-        setLeaderboardData([]);
-        setUserRank(0);
-      } finally {
-        setLoading(false);
-      }
-    };
+        const userStat = userStatsMap.get(sub.user_id)!;
+        
+        // Only count unique problems
+        if (!userStat.solved.has(sub.problem_id)) {
+          userStat.solved.add(sub.problem_id);
+          
+          if (sub.difficulty === 'Easy') {
+            userStat.easy++;
+            userStat.points += 10;
+          } else if (sub.difficulty === 'Medium') {
+            userStat.medium++;
+            userStat.points += 25;
+          } else if (sub.difficulty === 'Hard') {
+            userStat.hard++;
+            userStat.points += 50;
+          }
+        }
+      });
 
-    fetchLeaderboardData();
-  }, [user, timeFilter, streak]);
+      // Convert to leaderboard format
+      const leaderboard: LeaderboardType[] = Array.from(userStatsMap.entries())
+        .map(([userId, stat]) => ({
+          userId,
+          userName: userId === user?.id ? 'You' : `User ${userId.substring(0, 8)}`,
+          avatar: userId === user?.id ? '😊' : '👤',
+          rank: 0,
+          points: stat.points,
+          problemsSolved: stat.solved.size,
+          streak: userId === user?.id ? streak : 0,
+          easyCount: stat.easy,
+          mediumCount: stat.medium,
+          hardCount: stat.hard
+        }))
+        .sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points;
+          return b.problemsSolved - a.problemsSolved;
+        })
+        .map((item, index) => ({ ...item, rank: index + 1 }));
+
+      setLeaderboardData(leaderboard);
+
+      // Set user rank info
+      if (user) {
+        const userEntry = leaderboard.find(u => u.userId === user.id);
+        if (userEntry) {
+          setUserRankInfo({
+            rank: userEntry.rank,
+            total_users: leaderboard.length,
+            points: userEntry.points,
+            total_solved: userEntry.problemsSolved
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Fallback leaderboard error:', err);
+      setLeaderboardData([]);
+      setUserRankInfo(null);
+    }
+  };
+
+  // Fetch user rank information
+  const fetchUserRankInfo = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .rpc('get_user_rank', {
+          p_user_id: user.id
+        });
+
+      if (error) {
+        console.error('User rank fetch error:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setUserRankInfo({
+          rank: Number(data[0].rank),
+          total_users: Number(data[0].total_users),
+          points: Number(data[0].points),
+          total_solved: Number(data[0].total_solved)
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching user rank:', err);
+    }
+  };
+
+  // Helper function to get avatar
+  const getAvatarForUser = (isCurrentUser: boolean, displayName?: string): string => {
+    if (isCurrentUser) return '😊';
+    if (!displayName) return '👤';
+    
+    // Generate avatar based on first letter of display name
+    const firstLetter = displayName.charAt(0).toUpperCase();
+    const emojiMap: { [key: string]: string } = {
+      'A': '🅰️', 'B': '🅱️', 'C': '©️', 'D': '🌟', 'E': '🔷', 'F': '🔥',
+      'G': '💚', 'H': '🏠', 'I': '🎯', 'J': '🎪', 'K': '👑', 'L': '💙',
+      'M': '🎵', 'N': '🌙', 'O': '⭕', 'P': '💜', 'Q': '👸', 'R': '🚀',
+      'S': '⭐', 'T': '🎭', 'U': '☂️', 'V': '✌️', 'W': '🌊', 'X': '❌',
+      'Y': '💛', 'Z': '⚡'
+    };
+    
+    return emojiMap[firstLetter] || '👤';
+  };
+
+  // Refresh leaderboard
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchLeaderboardData();
+  };
+
+  // Format time ago
+  const formatTimeAgo = (date: Date): string => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    
+    if (seconds < 10) return 'just now';
+    if (seconds < 60) return `${seconds}s ago`;
+    
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
+  // Filter leaderboard by search query
+  const filteredLeaderboard = leaderboardData.filter(user => 
+    user.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.userId.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredLeaderboard.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = filteredLeaderboard.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  // Scroll current user into view
+  const scrollToCurrentUser = () => {
+    const userIndex = filteredLeaderboard.findIndex(u => u.userId === user?.id);
+    if (userIndex !== -1) {
+      const userPage = Math.floor(userIndex / itemsPerPage) + 1;
+      setCurrentPage(userPage);
+      setTimeout(() => {
+        const userElement = document.querySelector('.leaderboard-item.current-user');
+        userElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  };
 
   // Calculate real achievements based on user progress
   useEffect(() => {
@@ -337,6 +531,10 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
       <div className="header-section">
         <h1>🏆 Compete & Achieve</h1>
         <p>Track your progress, climb the ranks, and unlock achievements</p>
+        <div className="realtime-badge">
+          <Zap size={14} />
+          <span>Live Updates</span>
+        </div>
       </div>
 
       {!user && (
@@ -349,6 +547,48 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
 
       {user && (
         <>
+          {/* User Stats Overview */}
+          {userRankInfo && (
+            <div className="user-stats-overview">
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Trophy size={24} className="trophy-icon" />
+                </div>
+                <div className="stat-content">
+                  <div className="stat-value">#{userRankInfo.rank}</div>
+                  <div className="stat-label">Your Rank</div>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Zap size={24} className="points-icon" />
+                </div>
+                <div className="stat-content">
+                  <div className="stat-value">{userRankInfo.points.toLocaleString()}</div>
+                  <div className="stat-label">Points</div>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Target size={24} className="solved-icon" />
+                </div>
+                <div className="stat-content">
+                  <div className="stat-value">{userRankInfo.total_solved}</div>
+                  <div className="stat-label">Solved</div>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Users size={24} className="users-icon" />
+                </div>
+                <div className="stat-content">
+                  <div className="stat-value">{userRankInfo.total_users}</div>
+                  <div className="stat-label">Total Users</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="tabs-container">
             <button
               onClick={() => setActiveTab('leaderboard')}
@@ -383,7 +623,7 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
           {error && !loading && (
             <div className="error-container">
               <p className="error-message">{error}</p>
-              <button onClick={() => window.location.reload()} className="retry-btn">
+              <button onClick={handleRefresh} className="retry-btn">
                 Retry
               </button>
             </div>
@@ -391,30 +631,78 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
 
       {!loading && !error && activeTab === 'leaderboard' && (
         <div className="leaderboard-section">
-          <div className="filters">
-            <button
-              onClick={() => setTimeFilter('daily')}
-              className={`filter-btn ${timeFilter === 'daily' ? 'active' : ''}`}
+          {/* Real-time Update Indicator */}
+          {showUpdateIndicator && (
+            <div className="realtime-update-indicator">
+              <Zap size={16} className="pulse-icon" />
+              <span>Leaderboard updated in real-time!</span>
+            </div>
+          )}
+          
+          <div className="leaderboard-stats-bar">
+            <div className="total-users-info">
+              <Users size={20} />
+              <span className="user-count">
+                {filteredLeaderboard.length} {filteredLeaderboard.length === 1 ? 'User' : 'Users'}
+              </span>
+              {searchQuery && (
+                <span className="search-result-count">
+                  (filtered from {leaderboardData.length})
+                </span>
+              )}
+              <span className="last-updated" title={lastUpdated.toLocaleString()}>
+                • Updated {formatTimeAgo(lastUpdated)}
+              </span>
+            </div>
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              {user && (
+                <button onClick={scrollToCurrentUser} className="find-me-btn" title="Find me on leaderboard">
+                  Find Me
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="leaderboard-header">
+            <div className="filters">
+              <button
+                onClick={() => setTimeFilter('daily')}
+                className={`filter-btn ${timeFilter === 'daily' ? 'active' : ''}`}
+              >
+                Daily
+              </button>
+              <button
+                onClick={() => setTimeFilter('weekly')}
+                className={`filter-btn ${timeFilter === 'weekly' ? 'active' : ''}`}
+              >
+                Weekly
+              </button>
+              <button
+                onClick={() => setTimeFilter('monthly')}
+                className={`filter-btn ${timeFilter === 'monthly' ? 'active' : ''}`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setTimeFilter('alltime')}
+                className={`filter-btn ${timeFilter === 'alltime' ? 'active' : ''}`}
+              >
+                All Time
+              </button>
+            </div>
+            <button 
+              onClick={handleRefresh} 
+              className="refresh-btn"
+              disabled={refreshing}
             >
-              Daily
-            </button>
-            <button
-              onClick={() => setTimeFilter('weekly')}
-              className={`filter-btn ${timeFilter === 'weekly' ? 'active' : ''}`}
-            >
-              Weekly
-            </button>
-            <button
-              onClick={() => setTimeFilter('monthly')}
-              className={`filter-btn ${timeFilter === 'monthly' ? 'active' : ''}`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setTimeFilter('alltime')}
-              className={`filter-btn ${timeFilter === 'alltime' ? 'active' : ''}`}
-            >
-              All Time
+              {refreshing ? <Loader2 size={16} className="spinner" /> : <TrendingUp size={16} />}
+              Refresh
             </button>
           </div>
 
@@ -425,62 +713,124 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
               <p>Start solving problems to appear on the leaderboard!</p>
             </div>
           ) : (
-            <div className="leaderboard-list">
-              {leaderboardData.map((userData) => (
-                <div
-                  key={userData.userId}
-                  className={`leaderboard-item ${userData.userId === user?.id ? 'current-user' : ''} ${userData.rank <= 3 ? 'top-three' : ''}`}
-                >
-                  <div className="rank-section">
-                    {getRankIcon(userData.rank)}
-                  </div>
+            <>
+              <div className="leaderboard-table-header">
+                <div className="header-rank">Rank</div>
+                <div className="header-user">User</div>
+                <div className="header-problems">Problems</div>
+                <div className="header-breakdown">Difficulty</div>
+                <div className="header-streak">Streak</div>
+                <div className="header-points">Points</div>
+              </div>
+              <div className="leaderboard-list">
+                {paginatedData.map((userData) => (
+                  <div
+                    key={userData.userId}
+                    className={`leaderboard-item ${userData.userId === user?.id ? 'current-user' : ''} ${userData.rank <= 3 ? 'top-three' : ''}`}
+                  >
+                    <div className="rank-section">
+                      {getRankIcon(userData.rank)}
+                    </div>
 
-                  <div className="user-info">
-                    <div className="avatar">{userData.avatar}</div>
-                    <div className="user-details">
-                      <div className="user-name">{userData.userName}</div>
-                      <div className="user-stats">
-                        <span className="stat">
-                          <Target size={14} />
-                          {userData.problemsSolved} solved
-                        </span>
-                        {userData.streak > 0 && (
-                          <span className="stat">
-                            <Flame size={14} />
-                            {userData.streak} day streak
-                          </span>
-                        )}
+                    <div className="user-info">
+                      <div className="avatar">{userData.avatar}</div>
+                      <div className="user-details">
+                        <div className="user-name">
+                          {userData.userName}
+                          {userData.userId === user?.id && <span className="you-badge">YOU</span>}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="points-section">
-                    <div className="points">{userData.points.toLocaleString()}</div>
-                    <div className="points-label">points</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                    <div className="problems-section">
+                      <div className="problems-count">{userData.problemsSolved}</div>
+                      <div className="problems-label">solved</div>
+                    </div>
 
-          {userRank > 5 && leaderboardData.length > 0 && (
-            <div className="user-rank-card">
-              <div className="rank-info">
-                <span className="your-rank">Your Rank: #{userRank}</span>
-                <span className="rank-change">
-                  <TrendingUp size={16} />
-                  Keep climbing!
-                </span>
+                    <div className="difficulty-breakdown">
+                      {userData.easyCount !== undefined && (
+                        <span className="difficulty-stat easy">
+                          <span className="diff-count">{userData.easyCount}</span>
+                          <span className="diff-label">E</span>
+                        </span>
+                      )}
+                      {userData.mediumCount !== undefined && (
+                        <span className="difficulty-stat medium">
+                          <span className="diff-count">{userData.mediumCount}</span>
+                          <span className="diff-label">M</span>
+                        </span>
+                      )}
+                      {userData.hardCount !== undefined && (
+                        <span className="difficulty-stat hard">
+                          <span className="diff-count">{userData.hardCount}</span>
+                          <span className="diff-label">H</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="streak-section">
+                      {userData.streak > 0 ? (
+                        <>
+                          <Flame size={16} className="streak-icon" />
+                          <span className="streak-count">{userData.streak} days</span>
+                        </>
+                      ) : (
+                        <span className="no-streak">-</span>
+                      )}
+                    </div>
+
+                    <div className="points-section">
+                      <div className="points">{userData.points.toLocaleString()}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="rank-message">
-                Solve more problems to improve your ranking!
-              </p>
-            </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-controls">
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="pagination-btn"
+                  >
+                    First
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="pagination-btn"
+                  >
+                    Previous
+                  </button>
+                  <div className="page-info">
+                    Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+                    <span className="showing-range">
+                      (Showing {startIndex + 1}-{Math.min(endIndex, filteredLeaderboard.length)} of {filteredLeaderboard.length})
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="pagination-btn"
+                  >
+                    Next
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="pagination-btn"
+                  >
+                    Last
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
 
-      {!loading && activeTab === 'achievements' && (
+      {!loading && !error && activeTab === 'achievements' && (
         <div className="achievements-section">
           <div className="achievements-stats">
             <div className="stat-card">
