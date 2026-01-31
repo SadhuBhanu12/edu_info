@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Shuffle, Target, Clock, TrendingUp, AlertCircle } from 'lucide-react';
 import { striverSheetComplete } from '../../data/striverSheetComplete';
 import { useProgress } from '../../context/ProgressContext';
 import { ProblemCard } from '../../components/Cards';
-import { isDueForRevision, getRevisionPriority } from '../../utils/revisionScheduler';
 import type { Difficulty, Problem } from '../../types';
 import './RevisionDashboard.css';
 
 export function RevisionDashboard() {
-  const { progress, getProblemProgress } = useProgress();
+  const { getProblemProgress } = useProgress();
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [randomProblem, setRandomProblem] = useState<Problem | null>(null);
@@ -27,7 +26,6 @@ export function RevisionDashboard() {
       
       if (problemProgress?.status === 'solved' && problemProgress.solvedDate) {
         const confidence = problemProgress.confidence || 3;
-        const attempts = problemProgress.attempts || 1;
         
         // Calculate next revision (simple: 1 day after first solve, then 3, 7, 14, 30)
         const daysSinceSolved = Math.floor(

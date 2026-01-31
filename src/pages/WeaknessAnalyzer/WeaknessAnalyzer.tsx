@@ -72,7 +72,7 @@ export function WeaknessAnalyzer() {
 
       weaknesses.push({
         topicId: topic.id,
-        topicName: topic.title,
+        topicName: topic.name,
         totalProblems,
         attempted,
         solved,

@@ -11,19 +11,9 @@ interface ProgressCircleProps {
 export const ProgressCircle = memo(function ProgressCircle({ easy, medium, hard, total }: ProgressCircleProps) {
   const percentage = total.total > 0 ? Math.round((total.solved / total.total) * 100) : 0;
   
-  // Calculate individual difficulty percentages
-  const easyPercentage = easy.total > 0 ? (easy.solved / easy.total) * 100 : 0;
-  const mediumPercentage = medium.total > 0 ? (medium.solved / medium.total) * 100 : 0;
-  const hardPercentage = hard.total > 0 ? (hard.solved / hard.total) * 100 : 0;
-  
   // SVG circle calculations
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
-  
-  // Create multi-colored progress segments
-  const easyStroke = (easyPercentage / 100) * circumference;
-  const mediumStroke = (mediumPercentage / 100) * circumference;
-  const hardStroke = (hardPercentage / 100) * circumference;
   
   // Weighted average for overall progress
   const totalStroke = (percentage / 100) * circumference;

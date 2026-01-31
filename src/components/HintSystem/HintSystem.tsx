@@ -46,7 +46,7 @@ const HINT_LEVELS = [
   }
 ];
 
-export function HintSystem({ problemId, hints, onHintRevealed }: HintSystemProps) {
+export function HintSystem({ problemId: _, hints, onHintRevealed }: HintSystemProps) {
   const [revealedLevels, setRevealedLevels] = useState<Set<string>>(new Set());
   const [animatingLevel, setAnimatingLevel] = useState<string | null>(null);
 
@@ -97,7 +97,6 @@ export function HintSystem({ problemId, hints, onHintRevealed }: HintSystemProps
 
           const isRevealed = revealedLevels.has(levelInfo.level);
           const isAnimating = animatingLevel === levelInfo.level;
-          const isNext = currentIndex === index;
           const isLocked = currentIndex < index;
 
           const Icon = levelInfo.icon;

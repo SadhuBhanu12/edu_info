@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 import { useProgress } from '../../context/ProgressContext';
 import { striverSheetComplete } from '../../data/striverSheetComplete';
-import { DSA_PATTERNS, calculatePatternMastery, getPatternDifficulty, recommendNextPattern } from '../../utils/patternRecognition';
+import { DSA_PATTERNS, calculatePatternMastery, recommendNextPattern } from '../../utils/patternRecognition';
 import { Award, TrendingUp, Target, CheckCircle2, BookOpen } from 'lucide-react';
-import { ProblemCard } from '../../components/Cards/ProblemCard';
 import './PatternMastery.css';
 
 interface PatternStats {
@@ -13,7 +12,7 @@ interface PatternStats {
   solvedProblems: number;
   avgConfidence: number;
   masteryScore: number;
-  exampleProblems: string[];
+  exampleProblems: readonly string[];
 }
 
 export function PatternMastery() {
@@ -23,9 +22,9 @@ export function PatternMastery() {
   const patternStats = useMemo((): PatternStats[] => {
     const stats: PatternStats[] = [];
 
-    DSA_PATTERNS.forEach(pattern => {
+    Object.entries(DSA_PATTERNS).forEach(([patternName, pattern]) => {
       const patternProblems = striverSheetComplete.filter(p => 
-        p.patterns?.some(pName => pName.toLowerCase() === pattern.name.toLowerCase())
+        p.patterns?.some(pName => pName.toLowerCase() === patternName.toLowerCase())
       );
 
       const totalProblems = patternProblems.length;
@@ -43,17 +42,16 @@ export function PatternMastery() {
       });
 
       const avgConfidence = problemsWithConfidence > 0 ? totalConfidence / problemsWithConfidence : 0;
-      const completionRate = totalProblems > 0 ? solvedProblems / totalProblems : 0;
-      const masteryScore = calculatePatternMastery(completionRate, avgConfidence);
+      const masteryScore = calculatePatternMastery(solvedProblems, totalProblems, avgConfidence);
 
       stats.push({
-        patternName: pattern.name,
+        patternName: patternName,
         difficulty: pattern.difficulty,
         totalProblems,
         solvedProblems,
         avgConfidence,
         masteryScore,
-        exampleProblems: pattern.exampleProblems
+        exampleProblems: pattern.examples
       });
     });
 
@@ -89,7 +87,15 @@ export function PatternMastery() {
   const notStartedPatterns = patternStats.filter(p => p.masteryScore === 0);
 
   const recommendedPattern = recommendNextPattern(
-    patternStats.map(p => ({ pattern: p.patternName, masteryScore: p.masteryScore }))
+    new Map(patternStats.map(p => [p.patternName as keyof typeof DSA_PATTERNS, {
+      patternName: p.patternName as keyof typeof DSA_PATTERNS,
+      totalProblems: p.totalProblems,
+      solvedProblems: p.solvedProblems,
+      masteryScore: p.masteryScore,
+      lastPracticed: null,
+      averageConfidence: p.avgConfidence,
+      problemIds: []
+    }]))
   );
   const recommendedStats = patternStats.find(p => p.patternName === recommendedPattern);
 
@@ -226,7 +232,7 @@ export function PatternMastery() {
         <div className="patterns-grid">
           {patternStats.map(pattern => {
             const masteryInfo = getMasteryLevel(pattern.masteryScore);
-            const patternData = DSA_PATTERNS.find(p => p.name === pattern.patternName);
+            const patternData = DSA_PATTERNS[pattern.patternName as keyof typeof DSA_PATTERNS];
             
             return (
               <div key={pattern.patternName} className="pattern-card">

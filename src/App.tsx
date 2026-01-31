@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { AuthProvider } from './context/AuthContext';
-import { ProgressProvider, useProgress } from './context/ProgressContext';
+import { ProgressProvider } from './context/ProgressContext';
 import { ProtectedRoute, PublicRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { LeetCodeSyncProvider } from './components/LeetCodeSyncProvider';

@@ -44,10 +44,6 @@ export function Dashboard() {
       .slice(0, 3);
   };
 
-  const getProgressPercentage = () => {
-    return stats.total > 0 ? Math.round((stats.solved / stats.total) * 100) : 0;
-  };
-
   const getDifficultyStats = () => {
     // Count total problems by difficulty
     const easyTotal = striverSheetComplete.filter(p => p.difficulty === 'Easy').length;
@@ -117,7 +113,6 @@ export function Dashboard() {
   };
 
   const recommendedTopics = getRecommendedTopics();
-  const progressPercentage = getProgressPercentage();
   const weeklyData = getWeeklyProgress();
   const todaySuggestion = getTodaysSuggestion();
 

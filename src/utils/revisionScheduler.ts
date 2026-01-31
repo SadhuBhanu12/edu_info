@@ -45,7 +45,7 @@ export function isDueForRevision(nextRevisionDate: string): boolean {
 export function getRevisionPriority(
   nextRevisionDate: string,
   confidence: number,
-  attempts: number
+  _attempts: number
 ): 'urgent' | 'high' | 'medium' | 'low' {
   const today = new Date();
   const dueDate = new Date(nextRevisionDate);
@@ -65,7 +65,7 @@ export function getRevisionPriority(
 
 export function getWeakProblemsByTopic(
   problemsProgress: Record<string, any>,
-  topicId: string
+  _topicId: string
 ): string[] {
   return Object.entries(problemsProgress)
     .filter(([_, progress]) => {
