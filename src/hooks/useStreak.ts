@@ -9,7 +9,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import StreakService, {
+import StreakService from '../services/streakService';
+import type {
   UserStreak,
   StreakUpdateResult,
   StreakLeaderboardEntry,
@@ -350,7 +351,7 @@ export function useStreakOnSolve(userId: string | null) {
  */
 export function useStreakNotification() {
   const showStreakNotification = useCallback((result: StreakUpdateResult) => {
-    const { change_type, current_streak, message } = result;
+    const { change_type, message } = result;
     
     // Get appropriate emoji
     const emoji = {

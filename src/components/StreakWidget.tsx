@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { useUserStreak, useStreakStats } from '../hooks/useStreak';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { Flame, Trophy, Calendar, TrendingUp } from 'lucide-react';
 import './StreakWidget.css';
 

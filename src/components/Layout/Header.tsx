@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Target, Code2, Calendar, Trophy, CheckCircle, BarChart3, Brain, LogOut, Menu, X, User } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Target, Calendar, Trophy, CheckCircle, BarChart3, Brain, LogOut, Menu, X, User } from 'lucide-react';
 import { useProgress } from '../../context/ProgressContext';
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';

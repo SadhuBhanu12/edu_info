@@ -8,7 +8,7 @@
  * =====================================================
  */
 
-import { supabase } from './supabase';
+import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -71,13 +71,18 @@ export interface StreakLeaderboardEntry {
  * Error types for better error handling
  */
 export class StreakError extends Error {
+  code: string;
+  retryable: boolean;
+
   constructor(
     message: string,
-    public code: string,
-    public retryable: boolean = false
+    code: string,
+    retryable: boolean = false
   ) {
     super(message);
     this.name = 'StreakError';
+    this.code = code;
+    this.retryable = retryable;
   }
 }
 

@@ -265,7 +265,6 @@
   border-radius: 12px;
   transition: all 0.3s ease;
 }
-}
 
 .leaderboard-item:hover {
   background: rgba(255, 255, 255, 0.08);

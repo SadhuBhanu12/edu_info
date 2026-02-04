@@ -241,15 +241,6 @@
   font-weight: 700;
   letter-spacing: 0.5px;
 }
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-.leaderboard-text {
-  font-weight: 600;
-}
 
 .stat {
   display: flex;
