@@ -115,19 +115,30 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
       }
 
       if (leaderboardUsers && leaderboardUsers.length > 0) {
-        // Format leaderboard data
-        const formattedLeaderboard: LeaderboardType[] = leaderboardUsers.map((u: LeaderboardUser) => ({
-          userId: u.user_id,
-          userName: u.user_id === user.id ? 'You' : (u.display_name || `User ${u.user_id.substring(0, 8)}`),
-          avatar: getAvatarForUser(u.user_id === user.id, u.display_name),
-          rank: Number(u.rank),
-          points: Number(u.points),
-          problemsSolved: Number(u.total_solved),
-          streak: u.user_id === user.id ? streak : Number(u.streak || 0),
-          easyCount: Number(u.easy_count || 0),
-          mediumCount: Number(u.medium_count || 0),
-          hardCount: Number(u.hard_count || 0)
-        }));
+        console.log('📊 Leaderboard users:', leaderboardUsers);
+        
+        // Format leaderboard data with proper difficulty breakdown
+        const formattedLeaderboard: LeaderboardType[] = leaderboardUsers.map((u: LeaderboardUser) => {
+          const easyCount = Number(u.easy_count) || 0;
+          const mediumCount = Number(u.medium_count) || 0;
+          const hardCount = Number(u.hard_count) || 0;
+          const totalSolved = Number(u.total_solved) || 0;
+          
+          console.log(`User ${u.display_name || u.user_id.substring(0, 8)}: E=${easyCount} M=${mediumCount} H=${hardCount} Total=${totalSolved}`);
+          
+          return {
+            userId: u.user_id,
+            userName: u.user_id === user.id ? 'You' : (u.display_name || `User ${u.user_id.substring(0, 8)}`),
+            avatar: getAvatarForUser(u.user_id === user.id, u.display_name),
+            rank: Number(u.rank),
+            points: Number(u.points),
+            problemsSolved: totalSolved,
+            streak: u.user_id === user.id ? streak : Number(u.streak || 0),
+            easyCount: easyCount,
+            mediumCount: mediumCount,
+            hardCount: hardCount
+          };
+        });
 
         setLeaderboardData(formattedLeaderboard);
 
@@ -748,24 +759,18 @@ export const LeaderboardAchievements: React.FC<LeaderboardAchievementsProps> = (
                     </div>
 
                     <div className="difficulty-breakdown">
-                      {userData.easyCount !== undefined && (
-                        <span className="difficulty-stat easy">
-                          <span className="diff-count">{userData.easyCount}</span>
-                          <span className="diff-label">E</span>
-                        </span>
-                      )}
-                      {userData.mediumCount !== undefined && (
-                        <span className="difficulty-stat medium">
-                          <span className="diff-count">{userData.mediumCount}</span>
-                          <span className="diff-label">M</span>
-                        </span>
-                      )}
-                      {userData.hardCount !== undefined && (
-                        <span className="difficulty-stat hard">
-                          <span className="diff-count">{userData.hardCount}</span>
-                          <span className="diff-label">H</span>
-                        </span>
-                      )}
+                      <span className="difficulty-stat easy">
+                        <span className="diff-count">{userData.easyCount ?? 0}</span>
+                        <span className="diff-label">E</span>
+                      </span>
+                      <span className="difficulty-stat medium">
+                        <span className="diff-count">{userData.mediumCount ?? 0}</span>
+                        <span className="diff-label">M</span>
+                      </span>
+                      <span className="difficulty-stat hard">
+                        <span className="diff-count">{userData.hardCount ?? 0}</span>
+                        <span className="diff-label">H</span>
+                      </span>
                     </div>
 
                     <div className="streak-section">

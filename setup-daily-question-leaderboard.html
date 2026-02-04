@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Question & Leaderboard Setup Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox.checked::after {
+            content: "✓";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .checkbox.checked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0.5rem;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .button.secondary {
+            background: #22c55e;
+        }
+
+        .button.secondary:hover {
+            box-shadow: 0 8px 16px rgba(34, 197, 94, 0.3);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .status.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            border: 2px solid #22c55e;
+        }
+
+        .status.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 2px solid #f59e0b;
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .card-text {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 4px solid #22c55e;
+            color: #15803d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Setup Verification Tool</h1>
+        <p class="subtitle">Daily Question & Enhanced Leaderboard Features</p>
+
+        <div class="alert info">
+            <span style="font-size: 1.5rem;">ℹ️</span>
+            <div>
+                <strong>Welcome!</strong> Use this tool to verify your setup is complete.
+                Check off each item as you complete it.
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar">0%</div>
+        </div>
+
+        <!-- Section 1: Database Setup -->
+        <div class="section">
+            <h2>1️⃣ Database Setup</h2>
+            <ul class="checklist">
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Opened Supabase SQL Editor</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Copied contents of <code>daily-question-schema.sql</code></span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Ran SQL successfully (no errors)</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Verified <code>daily_questions</code> table exists</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Verified <code>daily_question_submissions</code> table exists</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Tested: <code>SELECT get_daily_question();</code> works</span>
+                </li>
+            </ul>
+
+            <div class="alert info" style="margin-top: 1rem;">
+                <span>💡</span>
+                <span><strong>Test Query:</strong> Run this in Supabase SQL Editor to verify setup</span>
+            </div>
+            <div class="code-block">
+SELECT * FROM daily_questions;
+SELECT get_daily_question();
+            </div>
+        </div>
+
+        <!-- Section 2: Leaderboard Verification -->
+        <div class="section">
+            <h2>2️⃣ Leaderboard Verification</h2>
+            <ul class="checklist">
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Verified <code>get_leaderboard()</code> function exists</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Verified <code>get_user_rank()</code> function exists</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Tested leaderboard query returns ALL users</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Confirmed no LIMIT clause in SQL function</span>
+                </li>
+            </ul>
+
+            <div class="alert info" style="margin-top: 1rem;">
+                <span>💡</span>
+                <span><strong>Test Query:</strong> This should return all users, not just 100</span>
+            </div>
+            <div class="code-block">
+SELECT * FROM get_leaderboard('alltime');
+-- Should return ALL users (no limit)
+            </div>
+        </div>
+
+        <!-- Section 3: Frontend Testing -->
+        <div class="section">
+            <h2>3️⃣ Frontend Testing</h2>
+            <ul class="checklist">
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Started development server (<code>npm run dev</code>)</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Logged into the application</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Clicked "Daily POTD" in navigation bar</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Daily question page loads successfully</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Verified question details display correctly</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Tested "Mark as Solved" button</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Community stats appear</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Section 4: Leaderboard Testing -->
+        <div class="section">
+            <h2>4️⃣ Leaderboard Testing</h2>
+            <ul class="checklist">
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Navigated to Leaderboard page</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>All users are visible (not limited to 100)</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Pagination works correctly</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Search functionality works</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>"Find Me" button jumps to my rank</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Current user is highlighted with "YOU" badge</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Time filters work (Daily/Weekly/Monthly/All-Time)</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Stats are accurate (points, solved count)</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Section 5: Mobile Testing -->
+        <div class="section">
+            <h2>5️⃣ Mobile Responsiveness</h2>
+            <ul class="checklist">
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Tested on mobile device or browser dev tools</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Daily question page is mobile-friendly</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>Leaderboard scrolls horizontally on mobile</span>
+                </li>
+                <li>
+                    <span class="checkbox" onclick="toggleCheck(this)"></span>
+                    <span>All buttons are touch-friendly</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-icon">📅</div>
+                <div class="card-title">Daily Question</div>
+                <div class="card-text">Random daily coding challenge with community stats</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🏆</div>
+                <div class="card-title">Leaderboard</div>
+                <div class="card-text">All users ranked with full transparency</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <div class="card-title">Analytics</div>
+                <div class="card-text">Track progress and compete with others</div>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="alert success" id="successAlert" style="display: none;">
+            <span style="font-size: 1.5rem;">🎉</span>
+            <div>
+                <strong>Setup Complete!</strong> All features are working correctly.
+                You're ready to use Daily Questions and the Enhanced Leaderboard!
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="button" onclick="window.location.href='http://localhost:5173/course/daily-question'">
+                Open Daily Question
+            </button>
+            <button class="button secondary" onclick="window.location.href='http://localhost:5173/course/leaderboard'">
+                Open Leaderboard
+            </button>
+        </div>
+
+        <!-- Documentation Link -->
+        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e2e8f0;">
+            <p style="color: #64748b; margin-bottom: 1rem;">
+                📖 For detailed documentation, see <strong>DAILY_QUESTION_AND_LEADERBOARD_GUIDE.md</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function toggleCheck(element) {
+            element.classList.toggle('checked');
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.checkbox');
+            const checkedBoxes = document.querySelectorAll('.checkbox.checked');
+            const percentage = Math.round((checkedBoxes.length / checkboxes.length) * 100);
+            
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+
+            // Show success message if 100%
+            if (percentage === 100) {
+                document.getElementById('successAlert').style.display = 'flex';
+            } else {
+                document.getElementById('successAlert').style.display = 'none';
+            }
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

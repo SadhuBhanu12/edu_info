@@ -437,6 +437,9 @@ export interface Leaderboard {
   points: number;
   problemsSolved: number;
   streak: number;
+  easyCount?: number;
+  mediumCount?: number;
+  hardCount?: number;
 }
 
 // Notification Types

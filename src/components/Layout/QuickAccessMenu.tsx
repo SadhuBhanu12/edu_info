@@ -17,18 +17,18 @@ export function QuickAccessMenu() {
 
   const quickLinks = [
     {
-      to: '/course/practice/two-sum',
+      to: '/course/daily-question',
       icon: Code2,
-      label: 'Practice Now',
-      color: '#3b82f6',
-      gradient: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'
+      label: 'Daily POTD',
+      color: '#8b5cf6',
+      gradient: 'linear-gradient(135deg, #8b5cf6, #ec4899)'
     },
     {
       to: '/course/study-plans',
       icon: Calendar,
       label: 'Study Plans',
-      color: '#8b5cf6',
-      gradient: 'linear-gradient(135deg, #8b5cf6, #ec4899)'
+      color: '#3b82f6',
+      gradient: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'
     },
     {
       to: '/course/leaderboard',

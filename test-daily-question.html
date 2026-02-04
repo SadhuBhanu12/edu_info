@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Question - Quick Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background: #f8fafc;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e2e8f0;
+        }
+        h1 {
+            color: #1e293b;
+        }
+        h2 {
+            color: #475569;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .sql-code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+        .step {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            border-left: 3px solid #6366f1;
+        }
+        .step-number {
+            background: #6366f1;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+            margin-left: -1.875rem;
+            margin-right: 0.5rem;
+        }
+        .btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.25rem;
+        }
+        .btn:hover {
+            background: #4f46e5;
+        }
+        .success {
+            background: #22c55e;
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        .error {
+            background: #fee;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border: 2px solid #ef4444;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .checklist input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Daily Question - Troubleshooting</h1>
+    
+    <div class="test-section">
+        <h2>📋 Pre-Flight Checklist</h2>
+        <ul class="checklist">
+            <li>
+                <input type="checkbox" id="c1">
+                <label for="c1">I have run the complete <code>daily-question-schema.sql</code> in Supabase SQL Editor</label>
+            </li>
+            <li>
+                <input type="checkbox" id="c2">
+                <label for="c2">I am logged into the application</label>
+            </li>
+            <li>
+                <input type="checkbox" id="c3">
+                <label for="c3">Dev server is running (http://localhost:5174)</label>
+            </li>
+            <li>
+                <input type="checkbox" id="c4">
+                <label for="c4">I have opened browser console (F12) to check for errors</label>
+            </li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Database Tests (Run in Supabase SQL Editor)</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Check if tables exist</strong>
+            <div class="sql-code">SELECT table_name FROM information_schema.tables 
+WHERE table_schema = 'public' 
+  AND table_name IN ('daily_questions', 'daily_question_submissions');</div>
+            <p><strong>Expected:</strong> You should see both table names listed</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Check if functions exist</strong>
+            <div class="sql-code">SELECT routine_name FROM information_schema.routines 
+WHERE routine_schema = 'public' 
+  AND routine_name IN ('get_daily_question', 'generate_daily_question');</div>
+            <p><strong>Expected:</strong> You should see both function names listed</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Test manual question generation</strong>
+            <div class="sql-code">SELECT generate_daily_question(
+  'arr-1',
+  'Two Sum',
+  'Easy',
+  'arrays-strings',
+  'https://leetcode.com/problems/two-sum/',
+  ARRAY['Hash Map', 'Array']
+);</div>
+            <p><strong>Expected:</strong> Should return JSON with <code>"success": true</code></p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Verify question was created</strong>
+            <div class="sql-code">SELECT * FROM daily_questions WHERE date = CURRENT_DATE;</div>
+            <p><strong>Expected:</strong> You should see 1 row with today's question</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Test get_daily_question function</strong>
+            <div class="sql-code">SELECT * FROM get_daily_question();</div>
+            <p><strong>Expected:</strong> You should see today's question details</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 Frontend Test</h2>
+        
+        <ol style="padding-left: 1.5rem;">
+            <li style="margin-bottom: 0.75rem;">Open the app: 
+                <a href="http://localhost:5174/course/daily-question" target="_blank" style="color: #6366f1;">
+                    http://localhost:5174/course/daily-question
+                </a>
+            </li>
+            <li style="margin-bottom: 0.75rem;">Open Browser Console (Press F12)</li>
+            <li style="margin-bottom: 0.75rem;">Look for these messages:
+                <div class="sql-code" style="margin-top: 0.5rem;">📅 Fetching daily question...
+🎲 Generating daily question for today...
+✅ Daily question loaded: {...}</div>
+            </li>
+            <li style="margin-bottom: 0.75rem;">If you see errors, check:
+                <ul style="margin-top: 0.5rem;">
+                    <li>❌ "function get_daily_question does not exist" → Schema not installed</li>
+                    <li>❌ "permission denied" → RLS policies issue</li>
+                    <li>❌ "not authenticated" → You're not logged in</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🚀 Quick Actions</h2>
+        <button class="btn" onclick="window.open('http://localhost:5174/course/daily-question', '_blank')">
+            Open Daily Question Page
+        </button>
+        <button class="btn" onclick="window.open('http://localhost:5174/login', '_blank')">
+            Login Page
+        </button>
+        <button class="btn" onclick="alert('1. Copy daily-question-schema.sql\\n2. Open Supabase SQL Editor\\n3. Paste and Run\\n4. Refresh this page')">
+            How to Install Schema
+        </button>
+    </div>
+
+    <div class="test-section">
+        <h2>❓ Common Issues & Solutions</h2>
+        
+        <details style="margin-bottom: 1rem;">
+            <summary style="cursor: pointer; font-weight: 600; padding: 0.5rem 0;">
+                ❌ "No daily question available"
+            </summary>
+            <div style="padding: 1rem; background: #f8fafc; margin-top: 0.5rem; border-radius: 4px;">
+                <p><strong>Cause:</strong> Functions not created or RPC call failing</p>
+                <p><strong>Fix:</strong></p>
+                <ol>
+                    <li>Run ALL 283 lines of daily-question-schema.sql in Supabase</li>
+                    <li>Test Step 2 above - verify both functions exist</li>
+                    <li>If functions don't exist, re-run the schema</li>
+                    <li>Refresh the page</li>
+                </ol>
+            </div>
+        </details>
+
+        <details style="margin-bottom: 1rem;">
+            <summary style="cursor: pointer; font-weight: 600; padding: 0.5rem 0;">
+                ❌ "Permission denied for function"
+            </summary>
+            <div style="padding: 1rem; background: #f8fafc; margin-top: 0.5rem; border-radius: 4px;">
+                <p><strong>Cause:</strong> Missing GRANT permissions</p>
+                <p><strong>Fix:</strong> Run this in Supabase SQL Editor:</p>
+                <div class="sql-code">GRANT EXECUTE ON FUNCTION get_daily_question() TO authenticated;
+GRANT EXECUTE ON FUNCTION generate_daily_question(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT[]) TO authenticated;</div>
+            </div>
+        </details>
+
+        <details style="margin-bottom: 1rem;">
+            <summary style="cursor: pointer; font-weight: 600; padding: 0.5rem 0;">
+                ❌ Console shows "Failed to fetch"
+            </summary>
+            <div style="padding: 1rem; background: #f8fafc; margin-top: 0.5rem; border-radius: 4px;">
+                <p><strong>Cause:</strong> Supabase connection issue</p>
+                <p><strong>Fix:</strong></p>
+                <ol>
+                    <li>Check your internet connection</li>
+                    <li>Verify Supabase project is active</li>
+                    <li>Check .env file has correct SUPABASE_URL and SUPABASE_ANON_KEY</li>
+                </ol>
+            </div>
+        </details>
+
+        <details style="margin-bottom: 1rem;">
+            <summary style="cursor: pointer; font-weight: 600; padding: 0.5rem 0;">
+                ❌ "Try Again" button doesn't work
+            </summary>
+            <div style="padding: 1rem; background: #f8fafc; margin-top: 0.5rem; border-radius: 4px;">
+                <p><strong>Solution:</strong> Click "Generate Question Manually" button instead</p>
+                <p>This will force the app to create a new question. Check browser console for detailed error messages.</p>
+            </div>
+        </details>
+    </div>
+
+    <div class="test-section" style="background: #eff6ff; border-color: #3b82f6;">
+        <h2>✅ If Everything Works</h2>
+        <p style="margin-bottom: 1rem;">You should see:</p>
+        <ul style="padding-left: 1.5rem;">
+            <li>✅ A random coding problem displayed</li>
+            <li>✅ Problem title, difficulty badge, and pattern tags</li>
+            <li>✅ "Solve on LeetCode" button</li>
+            <li>✅ Community stats section</li>
+            <li>✅ Tips section at the bottom</li>
+        </ul>
+        <p style="margin-top: 1rem;">
+            <strong>Next:</strong> Come back tomorrow to see a different random question!
+        </p>
+    </div>
+
+    <script>
+        // Save checkbox states
+        document.querySelectorAll('.checklist input').forEach(cb => {
+            cb.addEventListener('change', () => {
+                localStorage.setItem(cb.id, cb.checked);
+            });
+            cb.checked = localStorage.getItem(cb.id) === 'true';
+        });
+    </script>
+</body>
+</html>

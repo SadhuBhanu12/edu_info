@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Target, BarChart3, LogOut, Menu, X, Flame, CheckSquare, ChevronDown, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Target, BarChart3, LogOut, Menu, X, Flame, CheckSquare, ChevronDown, TrendingUp, Calendar } from 'lucide-react';
 import { useProgress } from '../../context/ProgressContext';
 import { useAuth } from '../../context/AuthContext';
 import './ProfessionalHeader.css';
@@ -38,6 +38,7 @@ export const ProfessionalHeader = memo(function ProfessionalHeader() {
     { path: '/course', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/course/topics', label: 'Topics', icon: BookOpen },
     { path: '/course/problems', label: 'Problems', icon: Target },
+    { path: '/course/daily-question', label: 'Daily POTD', icon: Calendar },
     { path: '/course/revision', label: 'Revision', icon: TrendingUp },
     { path: '/course/analytics', label: 'Analytics', icon: BarChart3 },
   ], []);

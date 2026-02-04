@@ -17,14 +17,14 @@ import './FeaturesOverview.css';
 export function FeaturesOverview() {
   const features = [
     {
-      id: 'practice',
+      id: 'daily-question',
       icon: Code2,
-      title: 'Practice Workspace',
-      description: 'Full-featured code editor with real-time execution and testing',
-      link: '/course/practice/two-sum',
-      color: '#3b82f6',
+      title: 'Daily POTD',
+      description: 'Practice with a new random coding problem every day',
+      link: '/course/daily-question',
+      color: '#8b5cf6',
       status: 'Active',
-      highlights: ['Multi-language support', 'Real-time testing', 'Hints system']
+      highlights: ['Random problems', 'Daily challenge', 'Track progress']
     },
     {
       id: 'study-plans',

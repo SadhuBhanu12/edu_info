@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Username System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .test-section {
+            background: #1e293b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        button {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        .info { color: #60a5fa; }
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #e2e8f0;
+            width: 300px;
+        }
+        pre {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Username System Test</h1>
+    
+    <div class="test-section">
+        <h2>Step 1: Test Schema Installation</h2>
+        <button onclick="testSchemaInstallation()">Check if Schema is Installed</button>
+        <div id="schema-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 2: Test Username Availability</h2>
+        <input type="text" id="test-username" placeholder="Enter username to check">
+        <button onclick="testUsernameAvailability()">Check Availability</button>
+        <div id="availability-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 3: View User Profiles</h2>
+        <button onclick="viewUserProfiles()">View All Profiles</button>
+        <div id="profiles-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 4: Test Leaderboard with Usernames</h2>
+        <button onclick="testLeaderboard()">Get Leaderboard</button>
+        <div id="leaderboard-result"></div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = prompt('Enter your Supabase URL:', 'https://your-project.supabase.co');
+        const SUPABASE_KEY = prompt('Enter your Supabase Anon Key:');
+        
+        if (!SUPABASE_URL || !SUPABASE_KEY) {
+            alert('Please provide Supabase credentials!');
+        }
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function testSchemaInstallation() {
+            const resultDiv = document.getElementById('schema-result');
+            resultDiv.innerHTML = '<p class="info">Testing schema installation...</p>';
+
+            try {
+                // Test if user_profiles table exists
+                const { data: profiles, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('id')
+                    .limit(1);
+
+                // Test if is_username_available function exists
+                const { data: funcTest, error: funcError } = await supabase
+                    .rpc('is_username_available', { p_username: 'test' });
+
+                let results = '<h3>Schema Check Results:</h3>';
+                
+                if (!profileError) {
+                    results += '<p class="success">✓ user_profiles table exists</p>';
+                } else {
+                    results += '<p class="error">✗ user_profiles table missing: ' + profileError.message + '</p>';
+                }
+
+                if (!funcError) {
+                    results += '<p class="success">✓ is_username_available() function exists</p>';
+                } else {
+                    results += '<p class="error">✗ is_username_available() function missing: ' + funcError.message + '</p>';
+                }
+
+                // Test other functions
+                const functions = [
+                    'generate_unique_username',
+                    'upsert_user_profile'
+                ];
+
+                for (const func of functions) {
+                    try {
+                        // Just check if function exists (will fail with invalid params, but that's OK)
+                        await supabase.rpc(func, {});
+                    } catch (e) {
+                        // Check error message
+                        const exists = !e.message.includes('does not exist');
+                        if (exists) {
+                            results += `<p class="success">✓ ${func}() function exists</p>`;
+                        } else {
+                            results += `<p class="error">✗ ${func}() function missing</p>`;
+                        }
+                    }
+                }
+
+                if (!profileError && !funcError) {
+                    results += '<h3 class="success">✓ Username system is properly installed!</h3>';
+                    results += '<p class="info">You can proceed with testing.</p>';
+                } else {
+                    results += '<h3 class="error">⚠️ Schema not fully installed!</h3>';
+                    results += '<p class="info">Please run unique-username-system.sql in Supabase SQL Editor.</p>';
+                }
+
+                resultDiv.innerHTML = results;
+
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+            }
+        }
+
+        async function testUsernameAvailability() {
+            const username = document.getElementById('test-username').value.trim();
+            const resultDiv = document.getElementById('availability-result');
+
+            if (!username) {
+                resultDiv.innerHTML = '<p class="error">Please enter a username</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p class="info">Checking username availability...</p>';
+
+            try {
+                const { data, error } = await supabase
+                    .rpc('is_username_available', { p_username: username });
+
+                if (error) {
+                    resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+                    return;
+                }
+
+                if (data) {
+                    resultDiv.innerHTML = `<p class="success">✓ Username "${username}" is available!</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">✗ Username "${username}" is already taken</p>`;
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+            }
+        }
+
+        async function viewUserProfiles() {
+            const resultDiv = document.getElementById('profiles-result');
+            resultDiv.innerHTML = '<p class="info">Loading user profiles...</p>';
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    resultDiv.innerHTML = '<p class="info">No user profiles found yet.</p>';
+                    return;
+                }
+
+                let html = `<p class="success">Found ${data.length} user profile(s):</p>`;
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+            }
+        }
+
+        async function testLeaderboard() {
+            const resultDiv = document.getElementById('leaderboard-result');
+            resultDiv.innerHTML = '<p class="info">Loading leaderboard...</p>';
+
+            try {
+                const { data, error } = await supabase
+                    .rpc('get_leaderboard', { limit_count: 10 });
+
+                if (error) {
+                    resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    resultDiv.innerHTML = '<p class="info">No leaderboard data yet.</p>';
+                    return;
+                }
+
+                let html = '<table style="width: 100%; border-collapse: collapse;">';
+                html += '<tr style="border-bottom: 1px solid #475569;"><th>Rank</th><th>Username</th><th>Points</th><th>Solved</th></tr>';
+                
+                data.forEach((user, index) => {
+                    html += `<tr style="border-bottom: 1px solid #334155;">
+                        <td>${index + 1}</td>
+                        <td>${user.username || user.display_name || user.email}</td>
+                        <td>${user.total_points}</td>
+                        <td>${user.problems_solved} (E:${user.easy_count} M:${user.medium_count} H:${user.hard_count})</td>
+                    </tr>`;
+                });
+                
+                html += '</table>';
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            if (SUPABASE_URL && SUPABASE_KEY) {
+                setTimeout(testSchemaInstallation, 500);
+            }
+        });
+    </script>
+</body>
+</html>

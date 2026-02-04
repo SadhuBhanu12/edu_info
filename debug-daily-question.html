@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Question - Debug</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        h1 { color: #60a5fa; }
+        .section {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        button:hover { background: #2563eb; }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        .output {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            margin-top: 1rem;
+            border: 1px solid #334155;
+        }
+        .step { margin-bottom: 1rem; }
+        input {
+            background: #0f172a;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            padding: 0.5rem;
+            border-radius: 4px;
+            width: 100%;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Daily Question - Debug Tool</h1>
+    
+    <div class="section">
+        <h2>1️⃣ Configure Supabase</h2>
+        <input type="text" id="supabaseUrl" placeholder="Supabase URL (https://xxx.supabase.co)" value="https://hcylrrfxcaqpqbmkdmzo.supabase.co">
+        <input type="password" id="supabaseKey" placeholder="Supabase Anon Key" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjeWxycmZ4Y2FxcHFibWtkbXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNTk0MjMsImV4cCI6MjA4MTczNTQyM30.9oUuZRpx9dHMfn6njpO-ox0k8ZYhRQkfVw1aXw3yX48">
+        <button onclick="initSupabase()">Connect</button>
+        <button onclick="autoConnect()" style="background: #10b981;">Auto-Connect & Test</button>
+        <div id="connectionStatus"></div>
+    </div>
+
+    <div class="section">
+        <h2>2️⃣ Test Functions</h2>
+        <div class="step">
+            <button onclick="testGetDailyQuestion()">Test get_daily_question()</button>
+            <div id="getDailyOutput"></div>
+        </div>
+        
+        <div class="step">
+            <button onclick="testGenerateDailyQuestion()">Test generate_daily_question()</button>
+            <div id="generateOutput"></div>
+        </div>
+        
+        <div class="step">
+            <button onclick="checkAuth()">Check Authentication</button>
+            <div id="authOutput"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3️⃣ Manual Insert Test</h2>
+        <button onclick="manualInsert()">Insert Test Question for Today</button>
+        <div id="insertOutput"></div>
+    </div>
+
+    <div class="section">
+        <h2>4️⃣ View Today's Question</h2>
+        <button onclick="viewTodayQuestion()">View Question</button>
+        <div id="viewOutput"></div>
+    </div>
+
+    <script>
+        let supabaseClient = null;
+
+        // Auto-connect on page load
+        window.addEventListener('load', () => {
+            document.getElementById('connectionStatus').innerHTML = '<div style="color: #fbbf24;">💡 Click "Auto-Connect & Test" to run all diagnostics!</div>';
+        });
+
+        function autoConnect() {
+            initSupabase();
+            setTimeout(() => {
+                if (supabaseClient) {
+                    checkAuth();
+                    setTimeout(() => testGetDailyQuestion(), 500);
+                    setTimeout(() => testGenerateDailyQuestion(), 1000);
+                }
+            }, 300);
+        }
+
+        function initSupabase() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseKey').value;
+            
+            if (!url || !key) {
+                document.getElementById('connectionStatus').innerHTML = '<div class="error">Please enter both URL and Key</div>';
+                return;
+            }
+
+            try {
+                supabaseClient = supabase.createClient(url, key);
+                document.getElementById('connectionStatus').innerHTML = '<div class="success">✅ Connected to Supabase</div>';
+            } catch (error) {
+                document.getElementById('connectionStatus').innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function checkAuth() {
+            if (!supabaseClient) {
+                alert('Please connect to Supabase first');
+                return;
+            }
+
+            const output = document.getElementById('authOutput');
+            output.innerHTML = '<div>Checking...</div>';
+
+            try {
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
+                
+                if (error) {
+                    output.innerHTML = `<div class="error">❌ Auth Error: ${error.message}</div>
+                    <div class="output">You need to be logged in. Open your app and login first.</div>`;
+                    return;
+                }
+
+                if (!user) {
+                    output.innerHTML = '<div class="error">❌ Not logged in</div><div class="output">Please login to your app first, then try again.</div>';
+                    return;
+                }
+
+                output.innerHTML = `<div class="success">✅ Logged in as: ${user.email}</div>
+                <div class="output">User ID: ${user.id}</div>`;
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Exception: ${error.message}</div>`;
+            }
+        }
+
+        async function testGetDailyQuestion() {
+            if (!supabaseClient) {
+                alert('Please connect to Supabase first');
+                return;
+            }
+
+            const output = document.getElementById('getDailyOutput');
+            output.innerHTML = '<div>Testing get_daily_question()...</div>';
+
+            try {
+                const { data, error } = await supabaseClient.rpc('get_daily_question');
+                
+                if (error) {
+                    output.innerHTML = `<div class="error">❌ RPC Error</div>
+                    <div class="output">Error: ${error.message}
+Code: ${error.code}
+Details: ${error.details}
+Hint: ${error.hint}
+
+DIAGNOSIS:
+${error.message.includes('does not exist') ? '⚠️ Function does not exist! Run daily-question-schema.sql in Supabase SQL Editor.' : ''}
+${error.message.includes('permission') ? '⚠️ Permission denied! Make sure you are logged in.' : ''}
+                    </div>`;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    output.innerHTML = `<div class="success">✅ Function exists but no question for today</div>
+                    <div class="output">Result: []
+
+This is OK - it means the function works but there's no question for today yet.
+Click "Test generate_daily_question()" to create one.</div>`;
+                } else {
+                    output.innerHTML = `<div class="success">✅ Success! Found question:</div>
+                    <div class="output">${JSON.stringify(data[0], null, 2)}</div>`;
+                }
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Exception: ${error.message}</div>
+                <div class="output">${error.stack}</div>`;
+            }
+        }
+
+        async function testGenerateDailyQuestion() {
+            if (!supabaseClient) {
+                alert('Please connect to Supabase first');
+                return;
+            }
+
+            const output = document.getElementById('generateOutput');
+            output.innerHTML = '<div>Testing generate_daily_question()...</div>';
+
+            try {
+                const { data, error } = await supabaseClient.rpc('generate_daily_question', {
+                    p_problem_id: 'arr-1',
+                    p_problem_title: 'Two Sum',
+                    p_difficulty: 'Easy',
+                    p_topic_id: 'arrays-strings',
+                    p_url: 'https://leetcode.com/problems/two-sum/',
+                    p_patterns: ['Hash Map', 'Array']
+                });
+                
+                if (error) {
+                    output.innerHTML = `<div class="error">❌ RPC Error</div>
+                    <div class="output">Error: ${error.message}
+Code: ${error.code}
+Details: ${error.details}
+Hint: ${error.hint}
+
+DIAGNOSIS:
+${error.message.includes('does not exist') ? '⚠️ Function does not exist! Run daily-question-schema.sql in Supabase SQL Editor.' : ''}
+${error.message.includes('permission') ? '⚠️ Permission denied! Run: GRANT EXECUTE ON FUNCTION generate_daily_question(...) TO authenticated;' : ''}
+${error.message.includes('violates row-level security') ? '⚠️ RLS Policy blocking! Check INSERT policy on daily_questions table.' : ''}
+                    </div>`;
+                    return;
+                }
+
+                output.innerHTML = `<div class="success">✅ Success!</div>
+                <div class="output">${JSON.stringify(data, null, 2)}
+
+Now click "View Today's Question" to see it.</div>`;
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Exception: ${error.message}</div>
+                <div class="output">${error.stack}</div>`;
+            }
+        }
+
+        async function manualInsert() {
+            if (!supabaseClient) {
+                alert('Please connect to Supabase first');
+                return;
+            }
+
+            const output = document.getElementById('insertOutput');
+            output.innerHTML = '<div>Inserting test question...</div>';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('daily_questions')
+                    .insert({
+                        problem_id: 'arr-1',
+                        problem_title: 'Two Sum',
+                        difficulty: 'Easy',
+                        topic_id: 'arrays-strings',
+                        url: 'https://leetcode.com/problems/two-sum/',
+                        patterns: ['Hash Map', 'Array'],
+                        date: new Date().toISOString().split('T')[0] // Today's date
+                    })
+                    .select();
+                
+                if (error) {
+                    output.innerHTML = `<div class="error">❌ Insert Error</div>
+                    <div class="output">Error: ${error.message}
+Code: ${error.code}
+Details: ${error.details}
+
+DIAGNOSIS:
+${error.message.includes('unique constraint') ? '⚠️ Question already exists for today. This is OK!' : ''}
+${error.message.includes('violates row-level security') ? '⚠️ RLS Policy blocking! You need to be logged in.' : ''}
+                    </div>`;
+                    return;
+                }
+
+                output.innerHTML = `<div class="success">✅ Successfully inserted!</div>
+                <div class="output">${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Exception: ${error.message}</div>`;
+            }
+        }
+
+        async function viewTodayQuestion() {
+            if (!supabaseClient) {
+                alert('Please connect to Supabase first');
+                return;
+            }
+
+            const output = document.getElementById('viewOutput');
+            output.innerHTML = '<div>Fetching today\'s question...</div>';
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const { data, error } = await supabaseClient
+                    .from('daily_questions')
+                    .select('*')
+                    .eq('date', today);
+                
+                if (error) {
+                    output.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    output.innerHTML = `<div class="error">❌ No question for today (${today})</div>
+                    <div class="output">Click "Test generate_daily_question()" or "Insert Test Question" to create one.</div>`;
+                    return;
+                }
+
+                output.innerHTML = `<div class="success">✅ Found question for today!</div>
+                <div class="output">${JSON.stringify(data[0], null, 2)}</div>`;
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Exception: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

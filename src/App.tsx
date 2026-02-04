@@ -30,6 +30,7 @@ const AIFeaturesPage = lazy(() => import('./pages/AIFeatures/AIFeaturesPage'));
 const RevisionDashboard = lazy(() => import('./pages/RevisionDashboard').then(m => ({ default: m.RevisionDashboard })));
 const WeaknessAnalyzer = lazy(() => import('./pages/WeaknessAnalyzer').then(m => ({ default: m.WeaknessAnalyzer })));
 const PatternMastery = lazy(() => import('./pages/PatternMastery').then(m => ({ default: m.PatternMastery })));
+const DailyQuestion = lazy(() => import('./pages/DailyQuestion/DailyQuestion'));
 
 // Loading component for Suspense
 function PageLoader() {
@@ -136,6 +137,7 @@ function AppContent() {
             <Route path="advanced-analytics" element={<AdvancedAnalyticsPage />} />
             <Route path="study-plans" element={<StudyPlansPage />} />
             <Route path="leaderboard" element={<LeaderboardPage />} />
+            <Route path="daily-question" element={<DailyQuestion />} />
             <Route path="ai-features" element={<AIFeaturesPage />} />
             <Route path="animations" element={<AnimationShowcase />} />
           </Route>

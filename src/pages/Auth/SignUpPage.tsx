@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { GraduationCap, Mail, Lock, User, AlertCircle, Eye, EyeOff, Shield, CheckCircle2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { GraduationCap, Mail, Lock, User, AlertCircle, Eye, EyeOff, Shield, CheckCircle2, AtSign } from 'lucide-react';
 import './Auth.css';
 
 const SignUpPage = () => {
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,6 +16,9 @@ const SignUpPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameError, setUsernameError] = useState('');
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -34,6 +39,58 @@ const SignUpPage = () => {
     return input.trim().replace(/[<>"']/g, '');
   };
 
+  // Username validation
+  const isValidUsername = (username: string): boolean => {
+    // Username must be 3-20 characters, alphanumeric + underscore
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    return usernameRegex.test(username);
+  };
+
+  // Check username availability
+  useEffect(() => {
+    const checkUsernameAvailability = async () => {
+      if (!username || username.length < 3) {
+        setUsernameAvailable(null);
+        setUsernameError('');
+        return;
+      }
+
+      if (!isValidUsername(username)) {
+        setUsernameAvailable(false);
+        setUsernameError('Username must be 3-20 characters (letters, numbers, underscore only)');
+        return;
+      }
+
+      setCheckingUsername(true);
+      setUsernameError('');
+
+      try {
+        const { data, error } = await supabase
+          .rpc('is_username_available', { p_username: username });
+
+        if (error) {
+          console.error('Error checking username:', error);
+          setUsernameAvailable(null);
+          return;
+        }
+
+        setUsernameAvailable(data as boolean);
+        if (!data) {
+          setUsernameError('This username is already taken');
+        }
+      } catch (err) {
+        console.error('Username check error:', err);
+        setUsernameAvailable(null);
+      } finally {
+        setCheckingUsername(false);
+      }
+    };
+
+    // Debounce username check
+    const timeoutId = setTimeout(checkUsernameAvailability, 500);
+    return () => clearTimeout(timeoutId);
+  }, [username]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -41,6 +98,7 @@ const SignUpPage = () => {
 
     // Sanitize inputs
     const sanitizedName = sanitizeInput(fullName);
+    const sanitizedUsername = sanitizeInput(username);
     const sanitizedEmail = sanitizeInput(email);
 
     // Comprehensive validation
@@ -51,6 +109,21 @@ const SignUpPage = () => {
 
     if (sanitizedName.length > 100) {
       setError('Name is too long (maximum 100 characters)');
+      return;
+    }
+
+    if (!sanitizedUsername || sanitizedUsername.length < 3) {
+      setError('Please enter a username (at least 3 characters)');
+      return;
+    }
+
+    if (!isValidUsername(sanitizedUsername)) {
+      setError('Username must be 3-20 characters (letters, numbers, underscore only)');
+      return;
+    }
+
+    if (usernameAvailable === false) {
+      setError('Username is already taken. Please choose another one.');
       return;
     }
 
@@ -106,6 +179,26 @@ const SignUpPage = () => {
         }
         setLoading(false);
       } else if (data?.user) {
+        // Create user profile with username
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .rpc('upsert_user_profile', {
+              p_user_id: data.user.id,
+              p_username: sanitizedUsername,
+              p_full_name: sanitizedName
+            });
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            // Continue anyway - profile might be created by trigger
+          }
+
+          console.log('Profile created:', profileData);
+        } catch (profileErr) {
+          console.error('Profile creation exception:', profileErr);
+          // Continue anyway
+        }
+
         // Secure session handling
         if (data.user.identities && data.user.identities.length === 0) {
           setSuccess('Account already exists! Please check your email to verify, then login.');
@@ -207,6 +300,45 @@ const SignUpPage = () => {
                   autoComplete="name"
                   maxLength={100}
                 />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="username">
+                  <AtSign size={18} />
+                  Username
+                </label>
+                <div className="password-input-wrapper">
+                  <input
+                    id="username"
+                    type="text"
+                    placeholder="johndoe123"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                    disabled={loading}
+                    autoComplete="username"
+                    maxLength={20}
+                    style={{
+                      borderColor: username && usernameAvailable === true ? '#22c55e' : 
+                                  username && usernameAvailable === false ? '#ef4444' : undefined
+                    }}
+                  />
+                  {checkingUsername && <span style={{ position: 'absolute', right: '12px', color: '#64748b' }}>...</span>}
+                  {!checkingUsername && username && usernameAvailable === true && (
+                    <CheckCircle2 size={18} style={{ position: 'absolute', right: '12px', color: '#22c55e' }} />
+                  )}
+                  {!checkingUsername && username && usernameAvailable === false && (
+                    <AlertCircle size={18} style={{ position: 'absolute', right: '12px', color: '#ef4444' }} />
+                  )}
+                </div>
+                {usernameError && (
+                  <p className="field-hint" style={{ color: '#ef4444' }}>{usernameError}</p>
+                )}
+                {!usernameError && username && usernameAvailable === true && (
+                  <p className="field-hint" style={{ color: '#22c55e' }}>✓ Username is available!</p>
+                )}
+                {!username && (
+                  <p className="field-hint">3-20 characters (letters, numbers, underscore)</p>
+                )}
               </div>
 
               <div className="form-group">
